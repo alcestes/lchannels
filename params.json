@@ -1,0 +1,6 @@
+{
+  "name": "lchannels",
+  "tagline": "Session programming in Scala",
+  "body": "`lchannels` is a Scala library providing _linear_ input/output communication channel endpoints.\r\nIts API is designed to ease _session programming_ via _continuation-passing style (CPS) protocols_.",
+  "note": "Don't delete this file! It's used internally to help with page regeneration."
+}

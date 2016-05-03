@@ -22,17 +22,23 @@
     <section class="main-content">
       <p>
 	<code>lchannels</code> is a Scala library for
-	<em>type-safe session programming</em>.
-	Its main abstraction are <em>linear I/O channels</em>
-	allowing to transfer data locally, or over a network.
-	Its API is designed for
-	<em>continuation-passing style protocols</em>.
+	<em>type-safe session programming</em>.  It
+	provides <em>linear I/O channels</em>, which allow to transfer
+	data locally, or over a network.  Its API allows
+	to <em>(1)</em> define
+	<em>protocols</em>, represented as a set
+	of <em>continuation-passing style classes</em>,
+	and <em>(2)</em> easily write programs that interact according
+	to such protocols.  The Scala type checker can examine the
+	resulting code and spot many protocol violations <em>at
+	compile time</em>.
       </p>
 
       <h2 id="example">An example</h2>
       
       <p>
-	Consider a simple ATM with the following session protocol:
+	Consider a simple ATM, which is supposed to implement the
+	following session protocol:
       </p>
 
       <ul>
@@ -60,11 +66,12 @@
       </ul>
 
       <p>
-	You can describe such a protocol with the
+	Such a protocol can be represented with the
 	following <em>continuation-passing style</em> classes
-	(where <code>In[A]</code> and <code>Out[A]</code> are provided
-	by <code>lchannels</code>, and the <code>cont</code> fields
-        describe how the session continues):
+	(where <code>Out[A]</code> is an <em>output channel
+	endpoint</em> carrying an <code>A</code>-typed message, and
+	the <code>cont</code> fields describe how the session
+	continues):
       </p>
       
     <pre><code class="prettyprint lang-scala">case class Authenticate(card: String, pin: String)(val cont: Out[Response])
@@ -81,7 +88,7 @@ case class Balance(amount: Int) // User account balance
 </code></pre>
 
       <p>
-	Then, you can implement the ATM with the following Scala code
+	Then, the ATM can be implemented with the following Scala code
 	(where the method <code>In[A].?</code> allows to receive
 	an <code>A</code>-typed message,
 	while <code>Out[A].!</code> and <code>Out[A].!!</code>
@@ -91,28 +98,32 @@ case class Balance(amount: Int) // User account balance
       <pre><code class="prettyprint lang-scala">def atm(c: In[Authenticate]) = {
   c ? { auth =>
     /* Check auth.card and auth.pin, and suppose we accept them... */
-    ( auth.cont !! Success()_ ) ? {
+    ( auth.cont !! Success()_ ) ? {   // Send Success(), then wait for request
       case m @ CheckBalance() => m.cont ! Balance(42)
       case Quit()             => ()
 } } }
 </code></pre>
 
       <p>
-	The Scala type checker will ensure that the ATM code does not
-	send the wrong type of message (depending on the state of the
-	protocol), and that it does not forget to handle a possible
-	user command.  This way, many protocol violations are
-	detected <em>at compile time</em>; other protocol safety errors
-	(e.g., sending a message twice) are detected and prevented
-	<em>at runtime</em>.
+	The Scala compiler will ensure that the ATM program does not
+	send the wrong type of message (e.g., sending <code>Balance</code>
+	when <code>Success</code>/<code>Failure</code> are expected),
+	and that it does not forget to handle some valid user requests
+	(e.g., it will warn if the <code>Quit</code> case is missing).
+	This way, many protocol violations are detected <em>at compile
+	time</em>; other protocol safety errors (e.g., duplicate
+	outputs) are detected
+	<em>at runtime</em> --- and in this case, <code>lchannels</code>
+	raises errors and prevents out-of-protocol messages to be sent.
       </p>
 
       <p>
-	Moreover, <code>In[A]</code> and <code>Out[A]</code>
-	<em>abstract the underlying message transport</em>.
-	Hence, the <code>atm()</code> method above can interact
-	with an user process e.g. via local data queues,
-	or through a TCP/IP socket.
+	Notably, <code>In[A]</code> and <code>Out[A]</code>
+	<em>abstract the underlying message transport</em>:
+	the <code>atm()</code> method above can interact with an user
+	process e.g. via local data queues, or through a TCP/IP
+	socket.  As a result, the protocol logic and its
+	low-level details are decoupled.
       </p>
       
       <h2 id="documentation">Documentation and publications</h2>
@@ -122,9 +133,9 @@ case class Balance(amount: Int) // User account balance
 	with <code>lchannels</code> is presented in the following
 	technical report: it explains how protocols
 	(formalised as <em>session types</em>) can be
-	represented in Scala using <em>continuation-passing style
-	  classes</em> and <code>lchannels</code>, and discusses
-	the main features of the library:
+	represented in Scala using <code>lchannels</code> with
+	<em>continuation-passing style classes</em>, and discusses
+	the main features of the library.
       </p>
 
       <img style="float:right; height:6em; width:auto" src="images/aec-badge-ecoop.png"
@@ -145,9 +156,9 @@ case class Balance(amount: Int) // User account balance
       </p>
       
       <p>
-	<strong>NOTE:</strong> the latest version
-	of <code>lchannels</code>
-	has <a href="current-vs-ecoop16.html">some differences and
+	<strong>NOTE:</strong> newer versions
+	of <code>lchannels</code> available on GitHub
+	have <a href="current-vs-ecoop16.html">some differences and
 	improvements</a>.
       </p>
 

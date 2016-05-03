@@ -1,0 +1,823 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>lchannels - lchannels</title>
+          <meta name="description" content="lchannels - lchannels" />
+          <meta name="keywords" content="lchannels lchannels" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../lib/template.js"></script>
+      <script type="text/javascript" src="../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../index.html';
+            var hash = 'lchannels.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img alt="Package" src="../lib/package_big.png" />
+        
+        <h1>lchannels</h1><span class="permalink">
+      <a href="../index.html#lchannels.package" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">lchannels</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"></div><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By Inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="lchannels"><span>lchannels</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show All</span></li>
+            </ol>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="lchannels.Actor" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ActorextendsProductwithSerializable"></a>
+      <a id="Actor:Actor"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Actor.html"><span class="name">Actor</span></a><span class="params">()</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@ActorextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">The medium of actor-based channels.</p>
+    </li><li name="lchannels.ActorIn" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ActorIn[T]extendsIn[lchannels.Actor,T]withSerializable"></a>
+      <a id="ActorIn[T]:ActorIn[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="ActorIn.html"><span class="name">ActorIn</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <a href="medium/In.html" class="extype" name="lchannels.medium.In">lchannels.medium.In</a>[<a href="Actor.html" class="extype" name="lchannels.Actor">Actor</a>, <span class="extype" name="lchannels.ActorIn.T">T</span>] with <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@ActorIn[T]extendsIn[lchannels.Actor,T]withSerializable" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Actor-based input channel endpoint,
+ usually created through the <a href="ActorIn$.html#apply[T](path:akka.actor.ActorPath)(implicitec:scala.concurrent.ExecutionContext,implicitas:akka.actor.ActorSystem,implicittimeout:scala.concurrent.duration.FiniteDuration):lchannels.ActorIn[T]" class="extmbr" name="lchannels.ActorIn#apply">companion object</a>
+ or via <a href="ActorChannel$.html#factory[T](name:String)(implicitec:scala.concurrent.ExecutionContext,implicitas:akka.actor.ActorSystem):(lchannels.ActorIn[T],lchannels.ActorOut[T])" class="extmbr" name="lchannels.ActorChannel#factory">ActorChannel.factory</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Actor-based input channel endpoint,
+ usually created through the <a href="ActorIn$.html#apply[T](path:akka.actor.ActorPath)(implicitec:scala.concurrent.ExecutionContext,implicitas:akka.actor.ActorSystem,implicittimeout:scala.concurrent.duration.FiniteDuration):lchannels.ActorIn[T]" class="extmbr" name="lchannels.ActorIn#apply">companion object</a>
+ or via <a href="ActorChannel$.html#factory[T](name:String)(implicitec:scala.concurrent.ExecutionContext,implicitas:akka.actor.ActorSystem):(lchannels.ActorIn[T],lchannels.ActorOut[T])" class="extmbr" name="lchannels.ActorChannel#factory">ActorChannel.factory</a>.
+</p></div><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Annotations</dt><dd>
+                <span class="name">@SerialVersionUID</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="lchannels.ActorOut" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ActorOut[-T]extendsOut[lchannels.Actor,T]withSerializable"></a>
+      <a id="ActorOut[-T]:ActorOut[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="ActorOut.html"><span class="name">ActorOut</span></a><span class="tparams">[<span name="T">-T</span>]</span><span class="result"> extends <a href="medium/Out.html" class="extype" name="lchannels.medium.Out">lchannels.medium.Out</a>[<a href="Actor.html" class="extype" name="lchannels.Actor">Actor</a>, <span class="extype" name="lchannels.ActorOut.T">T</span>] with <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@ActorOut[-T]extendsOut[lchannels.Actor,T]withSerializable" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Actor-based output channel endpoint,
+ usually created through the <a href="ActorOut$.html#apply[T](path:akka.actor.ActorPath)(implicitec:scala.concurrent.ExecutionContext,implicitas:akka.actor.ActorSystem,implicittimeout:scala.concurrent.duration.FiniteDuration):lchannels.ActorOut[T]" class="extmbr" name="lchannels.ActorOut#apply">companion object</a>
+ or via <a href="ActorChannel$.html#factory[T](name:String)(implicitec:scala.concurrent.ExecutionContext,implicitas:akka.actor.ActorSystem):(lchannels.ActorIn[T],lchannels.ActorOut[T])" class="extmbr" name="lchannels.ActorChannel#factory">ActorChannel.factory</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Actor-based output channel endpoint,
+ usually created through the <a href="ActorOut$.html#apply[T](path:akka.actor.ActorPath)(implicitec:scala.concurrent.ExecutionContext,implicitas:akka.actor.ActorSystem,implicittimeout:scala.concurrent.duration.FiniteDuration):lchannels.ActorOut[T]" class="extmbr" name="lchannels.ActorOut#apply">companion object</a>
+ or via <a href="ActorChannel$.html#factory[T](name:String)(implicitec:scala.concurrent.ExecutionContext,implicitas:akka.actor.ActorSystem):(lchannels.ActorIn[T],lchannels.ActorOut[T])" class="extmbr" name="lchannels.ActorChannel#factory">ActorChannel.factory</a>.
+</p></div><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Annotations</dt><dd>
+                <span class="name">@SerialVersionUID</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="lchannels.AlreadyUsed" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="AlreadyUsedextendsIllegalStateException"></a>
+      <a id="AlreadyUsed:AlreadyUsed"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="AlreadyUsed.html"><span class="name">AlreadyUsed</span></a><span class="result"> extends <span class="extype" name="java.lang.IllegalStateException">IllegalStateException</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@AlreadyUsedextendsIllegalStateException" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Signals a double usage of an input or output channel endpoint.</p>
+    </li><li name="lchannels.Channel" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="Channel[D&lt;:lchannels.Direction]extendsAnyRef"></a>
+      <a id="Channel[D&lt;:Direction]:Channel[D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Channel.html"><span class="name">Channel</span></a><span class="tparams">[<span name="D">D &lt;: <a href="package$$Direction.html" class="extype" name="lchannels.Direction">Direction</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@Channel[D&lt;:lchannels.Direction]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Base abstract class for all channel endpoints.</p>
+    </li><li name="lchannels.Direction" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="DirectionextendsAnyRef"></a>
+      <a id="Direction:Direction"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">sealed </span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$Direction.html"><span class="name">Direction</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@DirectionextendsAnyRef" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Convenience trait allowing to distinguish the intended direction
+ of a channel or a message type.</p>
+    </li><li name="lchannels.End" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="EndextendsChannel[lchannels.None]withProductwithSerializable"></a>
+      <a id="End:End"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="End.html"><span class="name">End</span></a><span class="params">()</span><span class="result"> extends <a href="Channel.html" class="extype" name="lchannels.Channel">Channel</a>[<a href="package$$None.html" class="extype" name="lchannels.None">None</a>] with <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@EndextendsChannel[lchannels.None]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Linear channel endpoint without input/output capabilities.</p><div class="fullcomment"><div class="comment cmt"><p>Linear channel endpoint without input/output capabilities.</p><p>For most practical purposes, instances of this object can be often replaced
+with instances of <code>Unit</code>.
+</p></div></div>
+    </li><li name="lchannels.In" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="In[+T]extendsChannel[lchannels.Receive]"></a>
+      <a id="In[+T]:In[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="In.html"><span class="name">In</span></a><span class="tparams">[<span name="T">+T</span>]</span><span class="result"> extends <a href="Channel.html" class="extype" name="lchannels.Channel">Channel</a>[<a href="package$$Receive.html" class="extype" name="lchannels.Receive">Receive</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@In[+T]extendsChannel[lchannels.Receive]" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Base abstract class for linear input channel endpoints.</p>
+    </li><li name="lchannels.Local" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="LocalextendsProductwithSerializable"></a>
+      <a id="Local:Local"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Local.html"><span class="name">Local</span></a><span class="params">()</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@LocalextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">The medium of local channel endpoints.</p>
+    </li><li name="lchannels.LocalIn" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="LocalIn[+T]extendsIn[lchannels.Local,T]"></a>
+      <a id="LocalIn[+T]:LocalIn[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="LocalIn.html"><span class="name">LocalIn</span></a><span class="tparams">[<span name="T">+T</span>]</span><span class="result"> extends <a href="medium/In.html" class="extype" name="lchannels.medium.In">lchannels.medium.In</a>[<a href="Local.html" class="extype" name="lchannels.Local">Local</a>, <span class="extype" name="lchannels.LocalIn.T">T</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@LocalIn[+T]extendsIn[lchannels.Local,T]" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Local input channel endpoint, usually created via <a href="LocalChannel$.html#factory[T]():(lchannels.LocalIn[T],lchannels.LocalOut[T])" class="extmbr" name="lchannels.LocalChannel#factory">LocalChannel.factory</a>.</p>
+    </li><li name="lchannels.LocalOut" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="LocalOut[-T]extendsOut[lchannels.Local,T]"></a>
+      <a id="LocalOut[-T]:LocalOut[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="LocalOut.html"><span class="name">LocalOut</span></a><span class="tparams">[<span name="T">-T</span>]</span><span class="result"> extends <a href="medium/Out.html" class="extype" name="lchannels.medium.Out">lchannels.medium.Out</a>[<a href="Local.html" class="extype" name="lchannels.Local">Local</a>, <span class="extype" name="lchannels.LocalOut.T">T</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@LocalOut[-T]extendsOut[lchannels.Local,T]" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Local output channel endpoint, usually created via <a href="LocalChannel$.html#factory[T]():(lchannels.LocalIn[T],lchannels.LocalOut[T])" class="extmbr" name="lchannels.LocalChannel#factory">LocalChannel.factory</a>.</p>
+    </li><li name="lchannels.None" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="Noneextendspackage.Direction"></a>
+      <a id="None:None"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$None.html"><span class="name">None</span></a><span class="result"> extends <a href="package$$Direction.html" class="extype" name="lchannels.Direction">Direction</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@Noneextendspackage.Direction" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Convenience trait for channels without I/O capabilities.</p>
+    </li><li name="lchannels.Out" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="Out[-T]extendsChannel[lchannels.Send]"></a>
+      <a id="Out[-T]:Out[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Out.html"><span class="name">Out</span></a><span class="tparams">[<span name="T">-T</span>]</span><span class="result"> extends <a href="Channel.html" class="extype" name="lchannels.Channel">Channel</a>[<a href="package$$Send.html" class="extype" name="lchannels.Send">Send</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@Out[-T]extendsChannel[lchannels.Send]" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Base abstract class for output channel endpoints.</p>
+    </li><li name="lchannels.QueueIn" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="QueueIn[+T]extendsIn[lchannels.Local,T]"></a>
+      <a id="QueueIn[+T]:QueueIn[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="QueueIn.html"><span class="name">QueueIn</span></a><span class="tparams">[<span name="T">+T</span>]</span><span class="result"> extends <a href="medium/In.html" class="extype" name="lchannels.medium.In">lchannels.medium.In</a>[<a href="Local.html" class="extype" name="lchannels.Local">Local</a>, <span class="extype" name="lchannels.QueueIn.T">T</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@QueueIn[+T]extendsIn[lchannels.Local,T]" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Queue-based input endpoint, usually created via <a href="QueueChannel$.html#factory[T]()(implicitec:scala.concurrent.ExecutionContext):(lchannels.QueueIn[T],lchannels.QueueOut[T])" class="extmbr" name="lchannels.QueueChannel#factory">QueueChannel.factory</a>.</p>
+    </li><li name="lchannels.QueueOut" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="QueueOut[-T]extendsOut[lchannels.Local,T]"></a>
+      <a id="QueueOut[-T]:QueueOut[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="QueueOut.html"><span class="name">QueueOut</span></a><span class="tparams">[<span name="T">-T</span>]</span><span class="result"> extends <a href="medium/Out.html" class="extype" name="lchannels.medium.Out">lchannels.medium.Out</a>[<a href="Local.html" class="extype" name="lchannels.Local">Local</a>, <span class="extype" name="lchannels.QueueOut.T">T</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@QueueOut[-T]extendsOut[lchannels.Local,T]" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Queue-based output endpoint, usually created via <a href="QueueChannel$.html#factory[T]()(implicitec:scala.concurrent.ExecutionContext):(lchannels.QueueIn[T],lchannels.QueueOut[T])" class="extmbr" name="lchannels.QueueChannel#factory">QueueChannel.factory</a>.</p>
+    </li><li name="lchannels.Receive" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="Receiveextendspackage.Direction"></a>
+      <a id="Receive:Receive"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$Receive.html"><span class="name">Receive</span></a><span class="result"> extends <a href="package$$Direction.html" class="extype" name="lchannels.Direction">Direction</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@Receiveextendspackage.Direction" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Convenience trait for input channels,
+ and message types whose instances should be received.</p>
+    </li><li name="lchannels.Send" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="Sendextendspackage.Direction"></a>
+      <a id="Send:Send"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$Send.html"><span class="name">Send</span></a><span class="result"> extends <a href="package$$Direction.html" class="extype" name="lchannels.Direction">Direction</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@Sendextendspackage.Direction" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Convenience trait for output channels,
+ and message types whose instances should be sent.</p>
+    </li><li name="lchannels.Socket" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SocketextendsProductwithSerializable"></a>
+      <a id="Socket:Socket"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Socket.html"><span class="name">Socket</span></a><span class="params">()</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@SocketextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">The medium of socket-based channel endpoints.</p>
+    </li><li name="lchannels.SocketIn" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="SocketIn[T]extendsIn[lchannels.Socket,T]"></a>
+      <a id="SocketIn[T]:SocketIn[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="SocketIn.html"><span class="name">SocketIn</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <a href="medium/In.html" class="extype" name="lchannels.medium.In">lchannels.medium.In</a>[<a href="Socket.html" class="extype" name="lchannels.Socket">Socket</a>, <span class="extype" name="lchannels.SocketIn.T">T</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@SocketIn[T]extendsIn[lchannels.Socket,T]" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Stream-based input channel endpoint, usually created
+ through the <a href="StreamIn$.html#apply[T](strm:lchannels.StreamManager)(implicitec:scala.concurrent.ExecutionContext):lchannels.StreamIn[T]" class="extmbr" name="lchannels.StreamIn#apply">companion object</a>
+ or via <a href="StreamManager.html#factory[T]()(implicitec:scala.concurrent.ExecutionContext):(lchannels.StreamIn[T],lchannels.StreamOut[T])" class="extmbr" name="lchannels.StreamManager#factory">StreamManager.factory</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Stream-based input channel endpoint, usually created
+ through the <a href="StreamIn$.html#apply[T](strm:lchannels.StreamManager)(implicitec:scala.concurrent.ExecutionContext):lchannels.StreamIn[T]" class="extmbr" name="lchannels.StreamIn#apply">companion object</a>
+ or via <a href="StreamManager.html#factory[T]()(implicitec:scala.concurrent.ExecutionContext):(lchannels.StreamIn[T],lchannels.StreamOut[T])" class="extmbr" name="lchannels.StreamManager#factory">StreamManager.factory</a>.
+</p></div><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
+    </li><li name="lchannels.SocketManager" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="SocketManagerextendsAnyRef"></a>
+      <a id="SocketManager:SocketManager"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="SocketManager.html"><span class="name">SocketManager</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@SocketManagerextendsAnyRef" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Base class for socket management and (de)serialization of messages.</p><div class="fullcomment"><div class="comment cmt"><p>Base class for socket management and (de)serialization of messages.</p><p> This class assumes to have exclusive control over the given socket.
+</p></div></div>
+    </li><li name="lchannels.SocketOut" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SocketOut[-T]extendsOut[lchannels.Socket,T]"></a>
+      <a id="SocketOut[-T]:SocketOut[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="SocketOut.html"><span class="name">SocketOut</span></a><span class="tparams">[<span name="T">-T</span>]</span><span class="result"> extends <a href="medium/Out.html" class="extype" name="lchannels.medium.Out">lchannels.medium.Out</a>[<a href="Socket.html" class="extype" name="lchannels.Socket">Socket</a>, <span class="extype" name="lchannels.SocketOut.T">T</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@SocketOut[-T]extendsOut[lchannels.Socket,T]" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Stream-based input channel endpoint, usually created
+ through the <a href="StreamOut$.html#apply[T](strm:lchannels.StreamManager)(implicitec:scala.concurrent.ExecutionContext):lchannels.StreamOut[T]" class="extmbr" name="lchannels.StreamOut#apply">companion object</a>
+ or via <a href="StreamManager.html#factory[T]()(implicitec:scala.concurrent.ExecutionContext):(lchannels.StreamIn[T],lchannels.StreamOut[T])" class="extmbr" name="lchannels.StreamManager#factory">StreamManager.factory</a>.</p>
+    </li><li name="lchannels.Stream" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="StreamextendsProductwithSerializable"></a>
+      <a id="Stream:Stream"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Stream.html"><span class="name">Stream</span></a><span class="params">()</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@StreamextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">The medium of stream-based channel endpoints.</p>
+    </li><li name="lchannels.StreamIn" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="StreamIn[T]extendsIn[lchannels.Stream,T]"></a>
+      <a id="StreamIn[T]:StreamIn[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="StreamIn.html"><span class="name">StreamIn</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <a href="medium/In.html" class="extype" name="lchannels.medium.In">lchannels.medium.In</a>[<a href="Stream.html" class="extype" name="lchannels.Stream">Stream</a>, <span class="extype" name="lchannels.StreamIn.T">T</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@StreamIn[T]extendsIn[lchannels.Stream,T]" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Stream-based input channel endpoint, usually created
+ through the <a href="StreamIn$.html#apply[T](strm:lchannels.StreamManager)(implicitec:scala.concurrent.ExecutionContext):lchannels.StreamIn[T]" class="extmbr" name="lchannels.StreamIn#apply">companion object</a>
+ or via <a href="StreamManager.html#factory[T]()(implicitec:scala.concurrent.ExecutionContext):(lchannels.StreamIn[T],lchannels.StreamOut[T])" class="extmbr" name="lchannels.StreamManager#factory">StreamManager.factory</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Stream-based input channel endpoint, usually created
+ through the <a href="StreamIn$.html#apply[T](strm:lchannels.StreamManager)(implicitec:scala.concurrent.ExecutionContext):lchannels.StreamIn[T]" class="extmbr" name="lchannels.StreamIn#apply">companion object</a>
+ or via <a href="StreamManager.html#factory[T]()(implicitec:scala.concurrent.ExecutionContext):(lchannels.StreamIn[T],lchannels.StreamOut[T])" class="extmbr" name="lchannels.StreamManager#factory">StreamManager.factory</a>.
+</p></div><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
+    </li><li name="lchannels.StreamManager" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="StreamManagerextendsAnyRef"></a>
+      <a id="StreamManager:StreamManager"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="StreamManager.html"><span class="name">StreamManager</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@StreamManagerextendsAnyRef" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Base class for stream management and (de)serialization of messages.</p>
+    </li><li name="lchannels.StreamOut" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="StreamOut[-T]extendsOut[lchannels.Stream,T]"></a>
+      <a id="StreamOut[-T]:StreamOut[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="StreamOut.html"><span class="name">StreamOut</span></a><span class="tparams">[<span name="T">-T</span>]</span><span class="result"> extends <a href="medium/Out.html" class="extype" name="lchannels.medium.Out">lchannels.medium.Out</a>[<a href="Stream.html" class="extype" name="lchannels.Stream">Stream</a>, <span class="extype" name="lchannels.StreamOut.T">T</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@StreamOut[-T]extendsOut[lchannels.Stream,T]" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Stream-based input channel endpoint, usually created
+ through the <a href="StreamOut$.html#apply[T](strm:lchannels.StreamManager)(implicitec:scala.concurrent.ExecutionContext):lchannels.StreamOut[T]" class="extmbr" name="lchannels.StreamOut#apply">companion object</a>
+ or via <a href="StreamManager.html#factory[T]()(implicitec:scala.concurrent.ExecutionContext):(lchannels.StreamIn[T],lchannels.StreamOut[T])" class="extmbr" name="lchannels.StreamManager#factory">StreamManager.factory</a>.</p>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="lchannels.ActorChannel" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ActorChannel"></a>
+      <a id="ActorChannel:ActorChannel"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ActorChannel$.html"><span class="name">ActorChannel</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@ActorChannel" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Channels that implement message delivery by automatically spawning
+ Akka Typed actors.</p>
+    </li><li name="lchannels.ActorIn" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ActorIn"></a>
+      <a id="ActorIn:ActorIn"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ActorIn$.html"><span class="name">ActorIn</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@ActorIn" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Actor-based input channel endpoint.</p>
+    </li><li name="lchannels.ActorOut" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ActorOut"></a>
+      <a id="ActorOut:ActorOut"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ActorOut$.html"><span class="name">ActorOut</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@ActorOut" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Actor-based output channel endpoint.</p>
+    </li><li name="lchannels.Defaults" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Defaults"></a>
+      <a id="Defaults:Defaults"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Defaults$.html"><span class="name">Defaults</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@Defaults" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
+    </li><li name="lchannels.LocalChannel" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="LocalChannel"></a>
+      <a id="LocalChannel:LocalChannel"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="LocalChannel$.html"><span class="name">LocalChannel</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@LocalChannel" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Simple implementation of local channel endpoints,
+ based on Scala <code>Promise</code>s/<code>Future</code>s.</p>
+    </li><li name="lchannels.QueueChannel" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="QueueChannel"></a>
+      <a id="QueueChannel:QueueChannel"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="QueueChannel$.html"><span class="name">QueueChannel</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@QueueChannel" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Channel endpoints for local use, based on Java <code>LinkedTransferQueue</code>s.</p><div class="fullcomment"><div class="comment cmt"><p>Channel endpoints for local use, based on Java <code>LinkedTransferQueue</code>s.</p><p>Queue-based channels are (almost) a drop-in replacement for
+<a href="LocalChannel$.html" class="extype" name="lchannels.LocalChannel">LocalChannel</a>s.  They are optimized for bypassing <a href="Out.html#promise[U&lt;:T]:scala.concurrent.Promise[U]" class="extmbr" name="lchannels.Out#promise">Out.promise</a> and
+<a href="In.html#future(implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[T]" class="extmbr" name="lchannels.In#future">In.future</a> whenever possible, e.g. when a program mostly calls
+<a href="Out.html#send(msg:T):Unit" class="extmbr" name="lchannels.Out#send">Out.send</a> and <a href="In.html#receive():T" class="extmbr" name="lchannels.In#receive">In.receive</a>; as a consequence, if <a href="QueueOut.html#promise[U&lt;:T]:scala.concurrent.Promise[U]" class="extmbr" name="lchannels.QueueOut#promise">QueueOut.promise</a>
+or <a href="QueueIn.html#future(implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[T]" class="extmbr" name="lchannels.QueueIn#future">QueueIn.future</a> are used, the performance will be impacted.</p><p><strong>NOTE</strong>: due to limitations of Java <code>LinkedTransferQueue</code>s,
+invoking <a href="QueueIn.html#receive(implicitd:scala.concurrent.duration.Duration):T" class="extmbr" name="lchannels.QueueIn#receive">QueueIn.receive</a> on a <code>QueueIn[Null]</code> instance with a
+<em>finite</em> wait time will cause a spurious timeout error.
+If you really need channel endpoints that carry <code>Null</code> values, you should
+use <a href="LocalChannel$.html" class="extype" name="lchannels.LocalChannel">LocalChannel</a>s.
+</p></div></div>
+    </li><li name="lchannels.SocketIn" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SocketIn"></a>
+      <a id="SocketIn:SocketIn"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SocketIn$.html"><span class="name">SocketIn</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@SocketIn" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Stream-based input channel endpoint.</p>
+    </li><li name="lchannels.SocketOut" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SocketOut"></a>
+      <a id="SocketOut:SocketOut"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SocketOut$.html"><span class="name">SocketOut</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@SocketOut" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Stream-based output channel endpoint.</p>
+    </li><li name="lchannels.StreamIn" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="StreamIn"></a>
+      <a id="StreamIn:StreamIn"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="StreamIn$.html"><span class="name">StreamIn</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@StreamIn" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Stream-based input channel endpoint.</p>
+    </li><li name="lchannels.StreamOut" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="StreamOut"></a>
+      <a id="StreamOut:StreamOut"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="StreamOut$.html"><span class="name">StreamOut</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@StreamOut" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Stream-based output channel endpoint.</p>
+    </li><li name="lchannels.medium" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="medium"></a>
+      <a id="medium:medium"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="medium/package.html"><span class="name">medium</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@medium" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="lchannels.protocol" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="protocol"></a>
+      <a id="protocol:protocol"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="protocol/package.html"><span class="name">protocol</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@protocol" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="lchannels.util" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="util"></a>
+      <a id="util:util"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="util/package.html"><span class="name">util</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#lchannels.package@util" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>

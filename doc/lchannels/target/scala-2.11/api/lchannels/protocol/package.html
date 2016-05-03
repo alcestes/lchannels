@@ -1,0 +1,257 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>protocol - lchannels.protocol</title>
+          <meta name="description" content="protocol - lchannels.protocol" />
+          <meta name="keywords" content="protocol lchannels.protocol" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../index.html';
+            var hash = 'lchannels.protocol.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img alt="Package" src="../../lib/package_big.png" />
+        <p id="owner"><a href="../package.html" class="extype" name="lchannels">lchannels</a></p>
+        <h1>protocol</h1><span class="permalink">
+      <a href="../../index.html#lchannels.protocol.package" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">protocol</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        
+        
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="lchannels.protocol.Message" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="Message[M,D&lt;:lchannels.Direction]extendsAnyRef"></a>
+      <a id="Message[M,D&lt;:Direction]:Message[M,D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Message.html"><span class="name">Message</span></a><span class="tparams">[<span name="M">M</span>, <span name="D">D &lt;: <a href="../package$$Direction.html" class="extype" name="lchannels.Direction">Direction</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#lchannels.protocol.package@Message[M,D&lt;:lchannels.Direction]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="lchannels.protocol.MessageSeq" visbl="prt" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="MessageSeq[M,D&lt;:lchannels.Direction,C&lt;:lchannels.Channel[_]]extendsAnyRef"></a>
+      <a id="MessageSeq[M,D&lt;:Direction,C&lt;:Channel[_]]:MessageSeq[M,D,C]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="MessageSeq.html"><span class="name">MessageSeq</span></a><span class="tparams">[<span name="M">M</span>, <span name="D">D &lt;: <a href="../package$$Direction.html" class="extype" name="lchannels.Direction">Direction</a></span>, <span name="C">C &lt;: <a href="../Channel.html" class="extype" name="lchannels.Channel">Channel</a>[_]</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#lchannels.protocol.package@MessageSeq[M,D&lt;:lchannels.Direction,C&lt;:lchannels.Channel[_]]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../package.html" class="extype" name="lchannels">lchannels</a>] </dd></dl></div>
+    </li><li name="lchannels.protocol.SeqReceiveEnd" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="SeqReceiveEnd[M]extendsMessageSeq[M,lchannels.Receive,lchannels.medium.End[M]]"></a>
+      <a id="SeqReceiveEnd[M]:SeqReceiveEnd[M]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="SeqReceiveEnd.html"><span class="name">SeqReceiveEnd</span></a><span class="tparams">[<span name="M">M</span>]</span><span class="result"> extends <a href="MessageSeq.html" class="extype" name="lchannels.protocol.MessageSeq">MessageSeq</a>[<span class="extype" name="lchannels.protocol.SeqReceiveEnd.M">M</span>, <a href="../package$$Receive.html" class="extype" name="lchannels.Receive">Receive</a>, <a href="../medium/End.html" class="extype" name="lchannels.medium.End">medium.End</a>[<span class="extype" name="lchannels.protocol.SeqReceiveEnd.M">M</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#lchannels.protocol.package@SeqReceiveEnd[M]extendsMessageSeq[M,lchannels.Receive,lchannels.medium.End[M]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="lchannels.protocol.SeqReceiveReceive" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="SeqReceiveReceive[M,T1&lt;:lchannels.protocol.Message[M,lchannels.Receive]]extendsMessageSeq[M,lchannels.Receive,lchannels.medium.In[M,T1]]"></a>
+      <a id="SeqReceiveReceive[M,T1&lt;:Message[M,Receive]]:SeqReceiveReceive[M,T1]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="SeqReceiveReceive.html"><span class="name">SeqReceiveReceive</span></a><span class="tparams">[<span name="M">M</span>, <span name="T1">T1 &lt;: <a href="Message.html" class="extype" name="lchannels.protocol.Message">Message</a>[<span class="extype" name="lchannels.protocol.SeqReceiveReceive.M">M</span>, <a href="../package$$Receive.html" class="extype" name="lchannels.Receive">Receive</a>]</span>]</span><span class="result"> extends <a href="MessageSeq.html" class="extype" name="lchannels.protocol.MessageSeq">MessageSeq</a>[<span class="extype" name="lchannels.protocol.SeqReceiveReceive.M">M</span>, <a href="../package$$Receive.html" class="extype" name="lchannels.Receive">Receive</a>, <a href="../medium/In.html" class="extype" name="lchannels.medium.In">medium.In</a>[<span class="extype" name="lchannels.protocol.SeqReceiveReceive.M">M</span>, <span class="extype" name="lchannels.protocol.SeqReceiveReceive.T1">T1</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#lchannels.protocol.package@SeqReceiveReceive[M,T1&lt;:lchannels.protocol.Message[M,lchannels.Receive]]extendsMessageSeq[M,lchannels.Receive,lchannels.medium.In[M,T1]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="lchannels.protocol.SeqReceiveSend" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="SeqReceiveSend[M,T1&lt;:lchannels.protocol.Message[M,lchannels.Send]]extendsMessageSeq[M,lchannels.Receive,lchannels.medium.Out[M,T1]]"></a>
+      <a id="SeqReceiveSend[M,T1&lt;:Message[M,Send]]:SeqReceiveSend[M,T1]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="SeqReceiveSend.html"><span class="name">SeqReceiveSend</span></a><span class="tparams">[<span name="M">M</span>, <span name="T1">T1 &lt;: <a href="Message.html" class="extype" name="lchannels.protocol.Message">Message</a>[<span class="extype" name="lchannels.protocol.SeqReceiveSend.M">M</span>, <a href="../package$$Send.html" class="extype" name="lchannels.Send">Send</a>]</span>]</span><span class="result"> extends <a href="MessageSeq.html" class="extype" name="lchannels.protocol.MessageSeq">MessageSeq</a>[<span class="extype" name="lchannels.protocol.SeqReceiveSend.M">M</span>, <a href="../package$$Receive.html" class="extype" name="lchannels.Receive">Receive</a>, <a href="../medium/Out.html" class="extype" name="lchannels.medium.Out">medium.Out</a>[<span class="extype" name="lchannels.protocol.SeqReceiveSend.M">M</span>, <span class="extype" name="lchannels.protocol.SeqReceiveSend.T1">T1</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#lchannels.protocol.package@SeqReceiveSend[M,T1&lt;:lchannels.protocol.Message[M,lchannels.Send]]extendsMessageSeq[M,lchannels.Receive,lchannels.medium.Out[M,T1]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="lchannels.protocol.SeqSendEnd" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="SeqSendEnd[M]extendsMessageSeq[M,lchannels.Send,lchannels.medium.End[M]]"></a>
+      <a id="SeqSendEnd[M]:SeqSendEnd[M]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="SeqSendEnd.html"><span class="name">SeqSendEnd</span></a><span class="tparams">[<span name="M">M</span>]</span><span class="result"> extends <a href="MessageSeq.html" class="extype" name="lchannels.protocol.MessageSeq">MessageSeq</a>[<span class="extype" name="lchannels.protocol.SeqSendEnd.M">M</span>, <a href="../package$$Send.html" class="extype" name="lchannels.Send">Send</a>, <a href="../medium/End.html" class="extype" name="lchannels.medium.End">medium.End</a>[<span class="extype" name="lchannels.protocol.SeqSendEnd.M">M</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#lchannels.protocol.package@SeqSendEnd[M]extendsMessageSeq[M,lchannels.Send,lchannels.medium.End[M]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="lchannels.protocol.SeqSendReceive" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="SeqSendReceive[M,T1&lt;:lchannels.protocol.Message[M,lchannels.Receive]]extendsMessageSeq[M,lchannels.Send,lchannels.medium.Out[M,T1]]"></a>
+      <a id="SeqSendReceive[M,T1&lt;:Message[M,Receive]]:SeqSendReceive[M,T1]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="SeqSendReceive.html"><span class="name">SeqSendReceive</span></a><span class="tparams">[<span name="M">M</span>, <span name="T1">T1 &lt;: <a href="Message.html" class="extype" name="lchannels.protocol.Message">Message</a>[<span class="extype" name="lchannels.protocol.SeqSendReceive.M">M</span>, <a href="../package$$Receive.html" class="extype" name="lchannels.Receive">Receive</a>]</span>]</span><span class="result"> extends <a href="MessageSeq.html" class="extype" name="lchannels.protocol.MessageSeq">MessageSeq</a>[<span class="extype" name="lchannels.protocol.SeqSendReceive.M">M</span>, <a href="../package$$Send.html" class="extype" name="lchannels.Send">Send</a>, <a href="../medium/Out.html" class="extype" name="lchannels.medium.Out">medium.Out</a>[<span class="extype" name="lchannels.protocol.SeqSendReceive.M">M</span>, <span class="extype" name="lchannels.protocol.SeqSendReceive.T1">T1</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#lchannels.protocol.package@SeqSendReceive[M,T1&lt;:lchannels.protocol.Message[M,lchannels.Receive]]extendsMessageSeq[M,lchannels.Send,lchannels.medium.Out[M,T1]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="lchannels.protocol.SeqSendSend" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="SeqSendSend[M,T1&lt;:lchannels.protocol.Message[M,lchannels.Send]]extendsMessageSeq[M,lchannels.Send,lchannels.medium.In[M,T1]]"></a>
+      <a id="SeqSendSend[M,T1&lt;:Message[M,Send]]:SeqSendSend[M,T1]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="SeqSendSend.html"><span class="name">SeqSendSend</span></a><span class="tparams">[<span name="M">M</span>, <span name="T1">T1 &lt;: <a href="Message.html" class="extype" name="lchannels.protocol.Message">Message</a>[<span class="extype" name="lchannels.protocol.SeqSendSend.M">M</span>, <a href="../package$$Send.html" class="extype" name="lchannels.Send">Send</a>]</span>]</span><span class="result"> extends <a href="MessageSeq.html" class="extype" name="lchannels.protocol.MessageSeq">MessageSeq</a>[<span class="extype" name="lchannels.protocol.SeqSendSend.M">M</span>, <a href="../package$$Send.html" class="extype" name="lchannels.Send">Send</a>, <a href="../medium/In.html" class="extype" name="lchannels.medium.In">medium.In</a>[<span class="extype" name="lchannels.protocol.SeqSendSend.M">M</span>, <span class="extype" name="lchannels.protocol.SeqSendSend.T1">T1</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#lchannels.protocol.package@SeqSendSend[M,T1&lt;:lchannels.protocol.Message[M,lchannels.Send]]extendsMessageSeq[M,lchannels.Send,lchannels.medium.In[M,T1]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="lchannels.protocol.Protocol" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Protocol"></a>
+      <a id="Protocol:Protocol"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Protocol$.html"><span class="name">Protocol</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#lchannels.protocol.package@Protocol" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>

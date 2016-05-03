@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>lchannels - Session programming in Scala</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+    <style>
+      pre.prompt {
+        margin-left: 40px; margin-right: 40px; padding: 2px;
+        background-color: black; color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">lchannels</h1>
+      <h2 class="project-tagline">Type-safe session programming in Scala</h2>
+      <a href="https://github.com/alcestes/lchannels" class="btn">View on GitHub</a>
+      <a href="https://github.com/alcestes/lchannels/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/alcestes/lchannels/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <p>
+	<strong>NOTE:</strong> the references below point to
+	specific sections and figures in the <strong>on-line
+	  technical report</strong>, available at:
+	<strong><code><a href="http://www.doc.ic.ac.uk/research/technicalreports/2015/#7">http://www.doc.ic.ac.uk/research/technicalreports/2015/#7</a></code></strong>.
+      </p>
+
+      <h2 id="requirements">Requirements</h2>
+      
+      <p>
+	These instructions assume an <strong>Unix-like operating
+	  system</strong> with <strong>Java 8 as default
+	  JRE/JDK</strong>.
+	They have been tested on Ubuntu (14.04 and 15.10),
+	Debian GNU/Linux (Sid, April 2016),
+	and Mac OS X (10.10 and 10.11).
+	They should also work on Windows with minor adaptations.
+      </p>
+      
+      <p>
+	For some examples, and to generate the benchmark plots,
+	you will also need
+	<a href="http://python.org/">Python 2.7.x</a>
+	and
+	<a href="http://matplotlib.org/">matplotlib</a>.
+      </p>
+      
+      <h3>Initial setup on Ubuntu (14.04 and later)</h3>
+
+      <p>
+	If you use Ubuntu (or recent versions of Debian GNU/Linux),
+	this section provides detailed
+	instructions that should be followed <em>before</em>
+	<a href="#compiling">compiling the sources</a>.
+      </p>
+      
+      <ol>
+	<li>
+	  <strong>If you are using Ubuntu 14.04</strong>,
+	  you might <em>first</em> need to
+	  enable the software repositories for Java 8.  Open a terminal
+	  and execute the following commands:
+	  
+	  <pre><code>sudo add-apt-repository ppa:openjdk-r/ppa   # Not needed on Ubuntu ≥ 14.10
+sudo apt-get update                         # Not needed on Ubuntu ≥ 14.10
+</code></pre>
+	</li>
+	<li>
+	  <strong>On <em>all</em> Ubuntu/Debian versions</strong>,
+	  you need to ensure that Java 8 is
+	  installed and selected as the default JRE/JDK.  Thus, you should
+	  execute the following commands:
+
+	  <pre><code>sudo apt-get install openjdk-8-jdk          # Alternatively: oracle-java8-jdk
+
+sudo update-alternatives --config java      # Ensure that Java 8 is selected
+sudo update-alternatives --config javac     # Ensure that Java 8 is selected
+</code></pre>
+	</li>
+	<li>
+	  Moreover, in order to generate the benchmark plots, you might also
+	  need to execute:
+
+	  <pre><code>sudo apt-get install python-matplotlib
+</code></pre>
+	</li>
+      </ol>
+
+      <h2 id="compiling">Compiling the sources</h2>
+      
+      <ol>
+	<li>
+	  You will need
+	  <strong><a href="http://www.scala-sbt.org/"><code>sbt</code></a>
+	    0.13.x</strong>:
+	  the installation instructions for various OSs are available
+	  <a href="http://www.scala-sbt.org/0.13/docs/Setup.html">here</a>.
+	</li>
+
+
+	<li>
+	  Open a terminal, and <code>cd</code> inside the
+	  <a href="https://github.com/alcestes/lchannels/"><code>lchannels/</code></a>
+	  directory.
+	  <em><strong>NOTE</strong>: from now on, all commands must be launched from this position.</em>
+	</li>
+	<li>
+	  Execute the following command:
+	  <pre><code>sbt compile
+</code></pre>
+	  This will cause <code>sbt</code> to automatically
+	  download all missing dependencies
+	  (including <a href="http://scala-lang.org/">Scala 2.11.8</a>)
+	  and compile <code>lchannels</code>.
+	</li>
+      </ol>
+
+      <h2 id="examples">Examples</h2>
+      
+      <p>
+	To launch the examples, execute:
+      </p>
+
+      <pre><code>sbt "project examples" run
+</code></pre>
+
+      <p>
+	You will get a prompt similar to the following:
+      </p>
+      
+      <pre class="prompt">Multiple main classes detected, select one to run:
+
+ [1] lchannels.examples.calc.Local
+ [2] lchannels.examples.calc.Queue
+ [3] lchannels.examples.chat.demo.Local
+ [4] lchannels.examples.greeting.ActorClient
+ [5] lchannels.examples.greeting.ActorServer
+ [6] lchannels.examples.greeting.Local
+ [7] lchannels.examples.greeting.Queue
+ [8] lchannels.examples.greeting.SocketClient
+ [9] lchannels.examples.greeting.StreamClient
+ [10] lchannels.examples.sleepingbarber.demo.Local
+
+Enter number:
+</pre>
+
+      <p>
+	The prompt allows to choose among:
+      </p>
+
+      <ul>
+	<li>
+	  <strong><code>lchannels.examples.calc</code></strong> (not
+	  mentioned in the technical report): a client and server that
+	  perform simple mathematical operations.
+	  <em><a href="https://github.com/alcestes/lchannels/tree/master/examples/src/main/scala/lchannels/examples/Calc.scala">(Source)</a></em>
+	</li>
+	<li>
+	  <strong><code>lchannels.examples.chat</code></strong>:
+	  the "chat server with frontend" case study, described in §1,
+	  §6.1 and §B.1 of the technical report.
+	  <em><a href="https://github.com/alcestes/lchannels/tree/master/examples/src/main/scala/lchannels/examples/chat/Demo.scala">(Source)</a></em>
+	</li>
+	<li>
+	  <strong><code>lchannels.examples.greeting</code></strong>:
+	  client and server implementing the "greeting protocol" of §2.1
+	  and Example 4.2.
+	  <em><a href="https://github.com/alcestes/lchannels/tree/master/examples/src/main/scala/lchannels/examples/Greeting.scala">(Source)</a></em>
+	</li>
+	<li>
+	  <strong><code>lchannels.examples.sleepingbarber</code></strong>:
+	  the "sleeping barber" of Example 4.3.
+	  <em><a href="https://github.com/alcestes/lchannels/tree/master/examples/src/main/scala/lchannels/examples/sleepingbarber/Demo.scala">(Source)</a></em>
+	</li>
+      </ul>
+      
+      <h3>Running the examples</h3>
+      
+      <ul>
+	<li>
+	  All examples ending
+	  with <strong><code>.Local</code></strong> can be
+	  launched simply by selecting their corresponding number.  They
+	  will spawn their components as separate threads (e.g., a
+	  server and one or more clients) that interact
+	  via <code>LocalChannel</code>s (§3.2).
+	  Their activity is reported via on-screen log messages.
+	</li>
+	<li>
+	  All examples ending
+	  with <strong><code>.Queue</code></strong> can be
+	  launched simply by selecting their corresponding number.
+	  Similarly to the <code>.Local</code> case above,
+	  <code>.Queue</code> examples
+	  will spawn their components as separate threads; the
+	  difference is that they interact
+	  via <code>QueueChannel</code>s (§5).
+	</li>
+	<li>
+	  <strong><code>lchannels.examples.greeting.ActorClient</code></strong>/<strong><code>.ActorServer</code></strong>
+	  launch the "greeting client/server" above using actor-based
+	  channels (§5).  In this case, the client and
+	  server can be launched <em>on different JVMs</em>, and they
+	  can still interact (thanks
+	  to <a href="http://doc.akka.io/docs/akka/2.4.2/scala/remoting.html">Akka
+	    Remoting</a>). Hence, you need to:
+
+	  <ol>
+	    <li>
+	      <em>first</em>, launch the server by
+	      selecting <code>lchannels.examples.greeting.ActorServer</code>
+	      from the prompt above;
+	    </li>
+	    <li>
+	      <em>second</em>, while the server is running, on <em>another terminal</em> execute again:
+
+	      <pre><code>sbt "project examples" run
+</code></pre>
+
+	      and from the prompt, select <code>lchannels.examples.greeting.ActorClient</code>.
+	    </li>
+	  </ol>
+	</li>
+	<li>
+	  <strong><code>lchannels.examples.greeting.StreamClient</code></strong>/<strong><code>.SocketClient</code></strong>
+	  launch the "greeting client" above
+	  using <code>StreamChannel</code>s (§5 and §A.1 in the
+	  technical report) or <code>SocketChannel</code>s (not
+	  mentioned in the technical report).
+	  The <code>StreamChannel</code>/<code>SocketChannel</code>,
+	  in turn, is created by connecting to an external "greeting
+	  server", through a TCP/IP socket; for this
+	  reason, <em>before</em> launching this example, you need to
+	  start the "greeting server".  On <em>another terminal</em>,
+	  execute:
+	  <pre><code>python scripts/greeting-server.py      # Listens on 127.0.0.1:1337
+</code></pre>
+	  When the "greeting server" is waiting for connections,
+	  you can select
+          <code>lchannels.examples.greeting.StreamClient</code>/<code>SocketClient</code>
+          from the prompt above.  Note that, as stated in §5 of the
+          technical report, the "greeting server" does <em>not</em> need to
+          use <code>lchannels</code>, and can be written
+          in <em>any</em> language (we used Python).
+	</li>
+      </ul>
+
+      <h3>Browsing the source code</h3>
+      
+      <p>
+	The source code for all examples can be found under
+	<a href="https://github.com/alcestes/lchannels/tree/master/examples/src/main/scala/lchannels/examples/"><code>examples/src/...</code></a>.
+      </p>
+
+      <p>
+	The main differences wrt. the code snippets in the technical report
+	are the addition of log messages,
+	and in some cases the presence of parameters that were omitted
+	for simplicity of exposition.
+	For instance:
+      </p>
+
+      <ul>
+	<li>
+	  some methods for creating instances
+	  of <code>In</code>/<code>Out</code>
+	  channels take
+	  <a href="http://engineering.monsanto.com/2015/06/15/implicits-futures/"><code>implicit</code> parameters</a>,
+	  such as the <code>ExecutionContext</code> for
+	  running Scala's <code>Future.onComplete()</code>
+	  callbacks.  As customary, such implicit parameters have been
+	  mostly omitted in the technical report (but of course, they are
+	  reported in the <a href="#api-docs">API documentation</a>);
+	</li>
+	<li>
+	  the chat server code shown in §6.1.2 invokes
+	  <code>LocalChannel.factory()</code> to create
+	  new pairs of channels; the corresponding code in
+	  <a href="https://github.com/alcestes/lchannels/tree/master/examples/src/main/scala/lchannels/examples/chat/ChatServer.scala">ChatServer.scala</a>
+	  (line 200), instead, uses <code>sfactory</code>,
+	  which is a <code>ChatServer</code> parameter
+	  that can be instantiated e.g. with
+	  <code>LocalChannel.factory</code>,
+	  <code>ActorChannel.factory</code>, <em>etc.</em>:
+	  it allows to decouple the chat server implementation from the
+	  channel transport.
+	</li>
+      </ul>
+
+      <h2 id="benchmarks">Benchmarks</h2>
+
+      <p>
+	The benchmarks (§6.2 of the technical report) can be run by executing:
+      </p>
+
+      <pre><code>./scripts/benchmark.sh
+</code></pre>
+
+      <p>
+	The command above launches a <em>reduced</em> version of the
+	benchmarks, that should terminate pretty quickly.
+      </p>
+
+      <p>
+	If you want to replicate the measurements in §6.2 of the
+	technical report (which take much longer and can be stressful
+	for the Java GC) you can execute instead:
+      </p>
+
+      <pre><code>./scripts/benchmark.sh 10 2000000   # Meaning: 10 JVM invocations, &#126;2000000 message exchanges
+</code></pre>
+
+      <p>
+	In both cases above, you will obtain:
+      </p>
+      <ul>
+	<li>
+	  a <code>bench/</code> directory, with several
+	  sub-directories: each one contains the results of the
+	  benchmarks for a distinct JVM invocation;
+	</li>
+	<li>
+	  the cumulative benchmark results, created by aggregating the
+	  measurements under <code>bench/*/</code>:
+	  <code>pingpong.csv</code>,
+	  <code>ring.csv</code>,
+	  <code>ring-stream.csv</code>
+	  and <code>chameneos.csv</code>.  Such aggregated results
+	  have been used to generate Figure 9 in the technical report;
+	</li>
+	<li>
+	  one <code>.pdf</code> file for
+	  each <code>.csv</code> file above, containing the
+	  plot of the benchmark results.
+	</li>
+      </ul>
+      
+      <p>
+	The source code for the benchmarks can be found under
+	<a href="https://github.com/alcestes/lchannels/tree/master/benchmarks/src/main/scala/"><code>benchmarks/src/...</code></a>.
+      </p>
+
+      <h2 id="api-docs">API documentation and source code pointers</h2>
+      
+      The API documentation for <code>lchannels</code> is
+      automatically generated from source code comments, with:
+
+      <pre><code>sbt "project lchannels" doc
+</code></pre>
+
+      <p>
+	<em>After</em> running the command above, the documentation can be browsed
+	<a href="doc/lchannels/target/scala-2.11/api/index.html#lchannels.package">here</a>.
+      </p>
+
+      <p>
+	Here are some selected links:
+      </p>
+      
+      <ul>
+	<li>
+	  Base classes (§3.1 in the technical report):
+	  <a href="doc/lchannels/target/scala-2.11/api/index.html#lchannels.In"><code>In</code></a>, <a href="doc/lchannels/target/scala-2.11/api/index.html#lchannels.Out"><code>Out</code></a> <em><a href="https://github.com/alcestes/lchannels/tree/master/lchannels/src/main/scala/lchannels/Channel.scala">(Source)</a></em>
+	</li>
+	<li>
+	  <a href="doc/lchannels/target/scala-2.11/api/index.html#lchannels.LocalChannel$"><code>LocalChannel</code></a>s
+	  (§3.2 in the technical report):
+	  <a href="doc/lchannels/target/scala-2.11/api/index.html#lchannels.LocalIn"><code>LocalIn</code></a>, <a href="doc/lchannels/target/scala-2.11/api/index.html#lchannels.LocalOut"><code>LocalOut</code></a> <em><a href="https://github.com/alcestes/lchannels/tree/master/lchannels/src/main/scala/lchannels/Local.scala">(Source)</a></em>
+	</li>
+	<li>
+	  <a href="doc/lchannels/target/scala-2.11/api/index.html#lchannels.QueueChannel$"><code>QueueChannel</code></a>s
+	  (§5 in the technical report):
+	  <a href="doc/lchannels/target/scala-2.11/api/index.html#lchannels.QueueIn"><code>QueueIn</code></a>, <a href="doc/lchannels/target/scala-2.11/api/index.html#lchannels.QueueOut"><code>QueueOut</code></a> <em><a href="https://github.com/alcestes/lchannels/tree/master/lchannels/src/main/scala/lchannels/Queue.scala">(Source)</a></em>
+	</li>
+	<li>
+	  <a href="doc/lchannels/target/scala-2.11/api/index.html#lchannels.ActorChannel$"><code>ActorChannel</code></a>s
+	  (§5 in the technical report):
+	  <a href="doc/lchannels/target/scala-2.11/api/lchannels/ActorIn$.html"><code>ActorIn</code></a>, <a href="doc/lchannels/target/scala-2.11/api/lchannels/ActorOut$.html"><code>ActorOut</code></a> <em><a href="https://github.com/alcestes/lchannels/tree/master/lchannels/src/main/scala/lchannels/Actor.scala">(Source)</a></em>
+	</li>
+	<li>
+	  <code>StreamChannel</code>s (§5 in the technical report):
+	  <a href="doc/lchannels/target/scala-2.11/api/lchannels/StreamIn$.html"><code>StreamIn</code></a>, <a href="doc/lchannels/target/scala-2.11/api/lchannels/StreamOut$.html"><code>StreamOut</code></a>,
+	  <a href="doc/lchannels/target/scala-2.11/api/index.html#lchannels.StreamManager"><code>StreamManager</code></a> <em><a href="https://github.com/alcestes/lchannels/tree/master/lchannels/src/main/scala/lchannels/Stream.scala">(Source)</a></em>
+	</li>
+	<li>
+	  <code>SocketChannel</code>s (not mentioned in the technical report):
+	  <a href="doc/lchannels/target/scala-2.11/api/lchannels/SocketIn$.html"><code>SocketIn</code></a>, <a href="doc/lchannels/target/scala-2.11/api/lchannels/SocketOut$.html"><code>SocketOut</code></a>,
+	  <a href="doc/lchannels/target/scala-2.11/api/index.html#lchannels.SocketManager"><code>SocketManager</code></a> <em><a href="https://github.com/alcestes/lchannels/tree/master/lchannels/src/main/scala/lchannels/Socket.scala">(Source)</a></em>
+	</li>
+      </ul>
+
+      <p>
+	Some other features and details:
+      </p>
+
+      <ul>
+	<li>
+	  <code>lchannels</code>-based FIFO queue (Example 4.1 in
+	  the technical report): <a href="doc/lchannels/target/scala-2.11/api/index.html#lchannels.util.Fifo"><code>lchannels.util.Fifo</code></a> <em><a href="https://github.com/alcestes/lchannels/tree/master/lchannels/src/main/scala/lchannels/util/Fifo.scala">(Source)</a></em>
+	</li>
+	<li>
+	  Medium-parametric channel endpoints (§A.1 in the technical report):
+	  <a href="doc/lchannels/target/scala-2.11/api/index.html#lchannels.medium.In"><code>medium.In</code></a>, <a href="doc/lchannels/target/scala-2.11/api/index.html#lchannels.medium.Out"><code>medium.Out</code></a> <em><a href="https://github.com/alcestes/lchannels/tree/master/lchannels/src/main/scala/lchannels/Medium.scala">(Source)</a></em>
+	</li>
+      </ul>
+      
+      <h2>Miscellaneous remarks</h2>
+
+      <ul>
+	<li>
+	  You might notice that
+	  the directory <a href="lchannels/examples/lib"><code>examples/lib/</code></a>
+	  contains a file
+	  called <code>akka-typed-experimental_2.11-2.4.2.jar</code>.
+	  It is a slightly modified version of the
+	  <a href="http://doc.akka.io/docs/akka/2.4.2/scala/typed.html">corresponding
+	    (experimental) Akka module</a>, automatically loaded when
+	  running the <a href="#examples"><code>lchannels</code>
+	    examples</a>.  The modification
+	  consists in the following patch to the <a href="https://github.com/akka/akka/releases/tag/v2.4.2">Akka 2.4.2 source code</a>:
+
+	  <pre class="prompt">
+--- a/akka-typed/src/main/scala/akka/typed/ActorRef.scala
++++ b/akka-typed/src/main/scala/akka/typed/ActorRef.scala
+@@ -63,7 +63,7 @@ trait ScalaActorRef[-T] { this: ActorRef[T] ⇒
+}
+
+object ActorRef {
+-  private class Combined[T](val untypedRef: akka.actor.ActorRef) extends ActorRef[T] with ScalaActorRef[T]
++  private class Combined[T](val untypedRef: akka.actor.ActorRef) extends ActorRef[T] with ScalaActorRef[T] with Serializable
+
+implicit def toScalaActorRef[T](ref: ActorRef[T]): ScalaActorRef[T] = ref.asInstanceOf[ScalaActorRef[T]]
+</pre>
+
+	  
+	  We applied such a patch to enable serialization
+	  of typed actor references; it will become unnecessary if/when
+	  Akka Typed will become stable.
+	</li>
+      </ul>
+      
+      <h2>Troubleshooting</h2>
+      
+      <ul>
+	<li>
+	  If you get an error similar to:
+	  <pre class="prompt">java.lang.UnsupportedClassVersionError: ... : Unsupported major.minor version 52.0
+</pre>
+	  It means that Java 8 is <em>not</em> your default JRE/JDK,
+	  as <a href="#requirements">required</a>.
+	</li>
+      </ul>
+
+      <footer class="site-footer">
+	<span class="site-footer-owner">
+	  <a href="https://github.com/alcestes/lchannels">lchannels</a>
+          is maintained
+          by <a href="https://github.com/alcestes">Alceste Scalas</a>.
+	  Email:
+	  alceste <em>(dot)</em> scalas <em>(at)</em> imperial <em>(dot)</em> ac <em>(dot)</em> uk
+	</span>
+	
+	<span class="site-footer-credits">This theme is based on <a href="https://github.com/jasonlong/cayman-theme">Cayman</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+    </section>
+  </body>
+</html>

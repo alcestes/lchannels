@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>lchannels - Session programming in Scala</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">lchannels</h1>
+      <h2 class="project-tagline">Type-safe session programming in Scala</h2>
+      <a href="https://github.com/alcestes/lchannels" class="btn">View on GitHub</a>
+      <a href="https://github.com/alcestes/lchannels/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/alcestes/lchannels/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h2>Differences from technical report, ECOOP'16 paper and artifact</h2>
+      
+      <p>
+	<code>lchannels</code> is under development.  The Imperial
+	College technical report and the ECOOP'16 paper 
+	mentioned <a href="index.html#documentation">here</a> are
+	still accurate, except for the following changes.
+      </p>
+
+      <h3>Backward-incompatible changes</h3>
+
+      <ul>
+	<li>
+	  <code>In.receive</code> and the other input methods
+	  <em>now throw an exception if used more than
+	    once</em> (similarly
+	  to <code>Out.send</code>).  <code>In.future</code>, instead, can be
+	  invoked multiple times, as before.  Note, however, that you
+	  should <em>never use both</em> <code>In.receive</code>
+	  and <code>In.future</code>:
+	  either use the former (only once), or the latter 
+	  (similar remarks already applied to
+	  <code>Out.send</code> and <code>Out.promise</code>).
+	</li>
+      </ul>
+
+      <h3>Backward-compatible changes</h3>
+
+      <ul>
+	<li>
+	  The implementation is now slightly more complex, and centred
+	  around <code>In.receive</code>/<code>Out.send</code>,
+	  instead of
+	  <code>In.future</code>/<code>Out.promise</code>
+	  (which are still available, and work as expected).
+	</li>
+	<li>
+	  The new classes <code>SocketIn</code>/<code>SocketOut</code>,
+	  very similar to <code>StreamIn</code>/<code>StreamOut</code>,
+	  provide a more optimised and direct socket abstraction.
+	</li>
+	<li>
+	  The performance has improved!  (New benchmark results coming soon)
+	</li>
+      </ul>
+
+      <footer class="site-footer">
+	<span class="site-footer-owner">
+	  <a href="https://github.com/alcestes/lchannels">lchannels</a>
+          is maintained
+          by <a href="https://github.com/alcestes">Alceste Scalas</a>.
+	  Email:
+	  alceste <em>(dot)</em> scalas <em>(at)</em> imperial <em>(dot)</em> ac <em>(dot)</em> uk
+	</span>
+	
+	<span class="site-footer-credits">This theme is based on <a href="https://github.com/jasonlong/cayman-theme">Cayman</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+    </section>
+  </body>
+</html>

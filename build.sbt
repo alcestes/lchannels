@@ -6,7 +6,7 @@ Keys.`package` := {
 }
 
 lazy val commonSettings = Seq(
-  version := "0.0.1",
+  version := "0.0.2",
   scalaVersion := "2.11.8",
   scalacOptions ++= Seq(
     "-target:jvm-1.8", "-unchecked", "-deprecation", "-feature", "-Ywarn-unused-import"

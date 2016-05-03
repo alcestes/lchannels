@@ -26,41 +26,90 @@
 /** @author Alceste Scalas <alceste.scalas@imperial.ac.uk> */
 package lchannels
 
-import scala.concurrent.{Await, Future, Promise}
+import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.concurrent.duration.Duration
 import scala.util.{Try, Success, Failure}
 
 /** Base abstract class for all channel endpoints. */
-abstract class Channel[D <: Direction]
+abstract class Channel[D <: Direction] {
+  @transient // Serializable sub-classes might not be able to use this field 
+  private val used = new java.util.concurrent.atomic.AtomicBoolean(false)
+  
+  protected final def markAsUsed() : Unit = {
+    if (!used.compareAndSet(false, true)) {
+      throw new lchannels.AlreadyUsed()
+    }
+  }
+}
+
+/** Signals a double usage of an input or output channel endpoint. */
+class AlreadyUsed(message: String = "I/O endpoint already used")
+  extends IllegalStateException(message)
 
 /** Base abstract class for linear input channel endpoints. */
 abstract class In[+T] extends Channel[Receive] {
+   private var _future: Future[_] = null // Will actually be Future[T]
   /** Return a future that will be completed when the channel endpoint
    *  receives a value, or incurs in an input error.
    */
-  def future: Future[T]
+  def future(implicit ec: ExecutionContext) = synchronized {
+    if (_future == null) {
+      // FIXME: maybe the duration below should be a parameter (implicit?)
+      _future = Future { receive(Duration.Inf) }
+    }
+    // This cast is safe: the returned future only retrieves a T-typed value
+    _future.asInstanceOf[Future[T]]
+  }
   
   /** Receive and return a message, blocking until its arrival.
-   *  
-   * Once a message is received, all calls to this method will return it
-   * immediately.
-   *  
-   * @param atMost Maximum wait time
    * 
+   * The default implementation of this method corresponds to
+   * [[receive(implicit atMost:*]] with an infinite timeout value.
+   * 
+   * @throws AlreadyUsed if the channel endpoint was already used for input
    * @throws java.lang.IllegalArgumentException if `atMost` is Duration.Undefined
    * @throws java.lang.InterruptedException if the current thread is interrupted while waiting
    * @throws java.util.concurrent.TimeoutException if after waiting for `atMost`, no message arrives
    * @throws scala.util.control.NonFatal in case of other errors (e.g. deserialization or network issues)
    */
-  def receive(implicit atMost: Duration): T = {
-    Await.result[T](future, atMost)
+  def receive(): T = {
+    receive(Duration.Inf)
+  }
+  
+  /** Receive and return a message, blocking until its arrival.
+   *  
+   * @param atMost Maximum wait time
+   * 
+   * @throws AlreadyUsed if the channel endpoint was already used for input
+   * @throws java.lang.IllegalArgumentException if `atMost` is Duration.Undefined
+   * @throws java.lang.InterruptedException if the current thread is interrupted while waiting
+   * @throws java.util.concurrent.TimeoutException if after waiting for `atMost`, no message arrives
+   * @throws scala.util.control.NonFatal in case of other errors (e.g. deserialization or network issues)
+   */
+  def receive(implicit atMost: Duration): T
+  
+  /** Receive and return message, blocking until its arrival, or until a failure.
+   * 
+   * The default implementation of this method corresponds to
+   * [[tryReceive(implicit atMost:*]] with an infinite timeout value.
+   * 
+   * Once a message `msg` is received, this method returns`Success(msg)`.
+   * In case of errors, the method returns `Failure(exception)`.
+   * 
+   * @param atMost Maximum wait time
+   */
+  def tryReceive(): Try[T] = {
+    try {
+      Success(receive())
+    } catch {
+      case scala.util.control.NonFatal(e) => Failure(e)
+    }
   }
   
   /** Receive and return message, blocking until its arrival, or until a failure.
    * 
-   * Once a message `msg` is received, all calls to this method will return it
-   * immediately, as `Success(msg)`.  In case of errors, the method returns
-   * `Failure(exception)`.
+   * Once a message `msg` is received, this method returns`Success(msg)`.
+   * In case of errors, the method returns `Failure(exception)`.
    * 
    * @param atMost Maximum wait time
    */
@@ -74,8 +123,7 @@ abstract class In[+T] extends Channel[Receive] {
   
   /** Wait for a message, pass it as argument to `f`, get the return value.
    * 
-   * Once a message `msg` is received, all calls to this method will return
-   * `f(msg)` immediately.
+   * Once a message `msg` is received, this method returns `f(msg)`.
    * 
    * @param atMost Maximum wait time
    * 
@@ -90,8 +138,8 @@ abstract class In[+T] extends Channel[Receive] {
   
   /** Wait for a message or error, pass it as argument to `f`, get the return value.
    * 
-   * Once a message `msg` is received, all calls to this method will return
-   * `f(Success(msg))` immediately.  In case of errors, the method returns
+   * Once a message `msg` is received, this method returns
+   * `f(Success(msg))`.  In case of errors, the method returns
    * `f(Failure(exception))`.
    * 
    * @param atMost Maximum wait time
@@ -103,9 +151,17 @@ abstract class In[+T] extends Channel[Receive] {
 
 /** Base abstract class for output channel endpoints. */
 abstract class Out[-T] extends Channel[Send] {
+  private var _promise: Promise[_] = null // Will actually be Promise[T]
   /** Return a promise that, once completed with a value `v`,
    *  causes `v` to be sent along this channel endpoint. */
-  def promise[U <: T]: Promise[U]
+  def promise[U <: T] = synchronized {
+    if (_promise == null) {
+      _promise = Promise[Any] // Will be actually used as a Promise[T]
+    }
+    // The following cast is safe: the returned promise can only
+    // be completed with U-typed values, which are also T-typed
+    _promise.asInstanceOf[Promise[U]]
+  }
   
   /** Return a pair of input/output linear channel endpoints */
   def create[U](): (In[U], Out[U])
@@ -140,10 +196,10 @@ abstract class Out[-T] extends Channel[Send] {
   /** Send a message.
    *  
    *  @param msg Message to be sent
+   *  
+   *  @throws AlreadyUsed if the channel endpoint was already used for output
    */
-  def send(msg: T): Unit = {
-    promise success msg
-  }
+  def send(msg: T): Unit
   
   /** Alias for [[send]]. */
   def !(msg: T) = send(msg)

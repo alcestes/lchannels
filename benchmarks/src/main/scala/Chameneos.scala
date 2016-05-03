@@ -62,8 +62,7 @@ object LChannelsImpl {
   class Broker(meetings: Int,
                rfactory: () => (In[Response], Out[Response]),
                cfactory: () => (In[Greeting], Out[Greeting]))
-              (implicit ec: ExecutionContext,
-                        timeout: Duration) extends Runnable {
+              (implicit ec: ExecutionContext) extends Runnable {
     // Queue of requests from chameneos
     private val requests = new Fifo[Out[Response]]()
     
@@ -109,22 +108,21 @@ object LChannelsImpl {
   }
   
   class Chameneos(name: String, var color: Color, broker: Broker)
-                 (implicit ec: ExecutionContext,
-                           timeout: Duration) extends Runnable {
+                 (implicit ec: ExecutionContext) extends Runnable {
     // Own thread
     private val thread = { val t = new Thread(this); t.start(); t }
     def join() = thread.join()
     
     @scala.annotation.tailrec
     override final def run() = {
-      broker.connect().receive match {
+      broker.connect().receive() match {
         case Start(c) => {
-          (c !! Greeting(name, color)_).receive
+          (c !! Greeting(name, color)_).receive()
           color = color.next
           run()
         }
         case Wait(c)  => {
-          val m = c.receive; m.cont ! Answer(name, color)
+          val m = c.receive(); m.cont ! Answer(name, color)
           color = color.next
           run()
         }

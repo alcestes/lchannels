@@ -164,8 +164,6 @@ object StreamClient extends App {
   }
   import java.net.Socket
   
-  import scala.util.{Success, Failure}
-  
   import scala.concurrent.ExecutionContext.Implicits.global
   implicit val timeout = 30.seconds
     
@@ -173,12 +171,9 @@ object StreamClient extends App {
         extends StreamManager(in, out) {  
     private val outb = new BufferedWriter(new OutputStreamWriter(out))
     
-    override def streamer(x: scala.util.Try[Any]) = x match {
-      case Failure(e) => close() // StreamManager.close() closes in & out
-      case Success(v) => v match {
-        case Greet(name) => outb.write(f"GREET ${name}\n"); outb.flush()
-        case Quit() => outb.write("QUIT\n"); outb.flush(); close() // End
-      }
+    override def streamer(x: Any) = x match {
+      case Greet(name) => outb.write(f"GREET ${name}\n"); outb.flush()
+      case Quit() => outb.write("QUIT\n"); outb.flush(); close() // End
     }
     
     private val inb = new BufferedReader(new InputStreamReader(in))
@@ -196,6 +191,44 @@ object StreamClient extends App {
   val conn = new Socket("127.0.0.1", 1337) // Host & port of greeting server
   val strm = new HelloStreamManager(conn.getInputStream, conn.getOutputStream)
   val c = StreamOut[Start](strm) // Output endpoint, towards greeting server
+  Client1(c)
+}
+
+object SocketClient extends App {
+  // Helper method to ease external invocation
+  def run() = main(Array())
+  
+  import java.io.{
+    BufferedReader, BufferedWriter, InputStreamReader, OutputStreamWriter
+  }
+  import java.net.Socket
+  
+  implicit val timeout = 30.seconds
+    
+  class HelloSocketManager(socket: Socket)
+        extends SocketManager(socket) {  
+    private val outb = new BufferedWriter(new OutputStreamWriter(out))
+    
+    override def streamer(x: Any) = x match {
+      case Greet(name) => outb.write(f"GREET ${name}\n"); outb.flush()
+      case Quit() => outb.write("QUIT\n"); outb.flush(); close() // End
+    }
+    
+    private val inb = new BufferedReader(new InputStreamReader(in))
+    private val helloR = """HELLO (.+)""".r // Matches Hello(name)
+    private val byeR = """BYE (.+)""".r     // Matches Bye(name)
+    
+    override def destreamer() = inb.readLine() match {
+      case helloR(name) => Hello(name)(SocketOut[Start](this))
+      case byeR(name) => close(); Bye(name) // Session end: close streams
+      case e => { close(); throw new Exception(f"Bad message: '${e}'") }
+    }
+  }
+  
+  println("[*] Connecting to 127.0.0.1:1337...")
+  val conn = new Socket("127.0.0.1", 1337) // Host & port of greeting server
+  val sktm = new HelloSocketManager(conn)
+  val c = SocketOut[Start](sktm) // Output endpoint, towards greeting server
   Client1(c)
 }
 

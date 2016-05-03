@@ -44,13 +44,12 @@ object LChannelsImpl {
   ////////////////////////////////////////////////////////////////////////////
   
   @scala.annotation.tailrec
-  def pinger(c: Out[Request], msg: String, ts: Long, n: Int)
-            (implicit d: Duration): Long = {
+  def pinger(c: Out[Request], msg: String, ts: Long, n: Int): Long = {
     // Update timestamp if not yet set, thus registering actual start time
     val ts2 = if (ts == 0) System.nanoTime() else ts
     if (n > 0) {
       val pingResponse = c !! Ping(msg)_
-      pingResponse.receive match {
+      pingResponse.receive() match {
         case pong => pinger(pong.cont, msg, ts2, n-1)
       }
     } else {
@@ -60,9 +59,8 @@ object LChannelsImpl {
   }
   
   @scala.annotation.tailrec
-  def ponger(c: In[Request])
-               (implicit d: Duration): Long = {
-    c.receive match {
+  def ponger(c: In[Request]): Long = {
+    c.receive() match {
       case ping @ Ping(msg) => ponger(ping.cont !! Pong(msg)_) 
       case Stop() => System.nanoTime()
     }

@@ -28,7 +28,6 @@ package lchannels.examples.calc
 
 import scala.concurrent.{ExecutionContext}
 import scala.concurrent.duration.Duration
-import scala.util.{Success, Failure}
 
 import lchannels._
 
@@ -71,25 +70,45 @@ class CalcStreamManager(in: InputStream, out: OutputStream)
       throw new java.net.ProtocolException(f"Unknown message: '${unknown}'")
     }
   }
+  
   private val outb = new BufferedWriter(new OutputStreamWriter(out))
   
-  override def streamer(x: scala.util.Try[Any]) = x match {
-    case Success(v) => v match {
-      case Negate(n) => outb.write(f"NEGATE ${n}\n"); outb.flush()
-      case Add(n)    => outb.write(f"ADD ${n}\n"); outb.flush()
-      case Add2(n)   => outb.write(f"ADD2 ${n}\n"); outb.flush()
-      case Quit()    => outb.write("QUIT\n"); outb.flush(); close()
-    }
-    case Failure(e) => {
-      outb.write("ERROR\n"); outb.flush()
+  override def streamer(x: Any) = x match {
+    case Negate(n) => outb.write(f"NEGATE ${n}\n"); outb.flush()
+    case Add(n)    => outb.write(f"ADD ${n}\n"); outb.flush()
+    case Add2(n)   => outb.write(f"ADD2 ${n}\n"); outb.flush()
+    case Quit()    => outb.write("QUIT\n"); outb.flush(); close()
+  }
+}
+
+class CalcSocketManager(socket: java.net.Socket)
+    extends SocketManager(socket) {
+  private val inb = new BufferedReader(new InputStreamReader(in))
+  private val welcomeR = """WELCOME (.+)""".r
+  private val answerR = """ANSWER (-?\d+)""".r
+  
+  override def destreamer() =  inb.readLine() match {
+    case welcomeR(msg) => Welcome(msg)(SocketOut[Choice](this))
+    case answerR(n) => Answer(n.toInt)(SocketOut[Choice](this))
+    case unknown => {
       close()
+      throw new java.net.ProtocolException(f"Unknown message: '${unknown}'")
     }
+  }
+  
+  private val outb = new BufferedWriter(new OutputStreamWriter(out))
+  
+  override def streamer(x: Any) = x match {
+    case Negate(n) => outb.write(f"NEGATE ${n}\n"); outb.flush()
+    case Add(n)    => outb.write(f"ADD ${n}\n"); outb.flush()
+    case Add2(n)   => outb.write(f"ADD2 ${n}\n"); outb.flush()
+    case Quit()    => outb.write("QUIT\n"); outb.flush(); close()
   }
 }
 
 object Server {
   def apply(c: Out[Welcome])
-              (implicit timeout: Duration): Unit = {
+           (implicit timeout: Duration): Unit = {
     println(f"[S] Sending welcome to ${c}...")
     val c2 = c !! Welcome("Welcome to SessionCalc 0.1")_
     subHandler(c2)

@@ -27,9 +27,11 @@
 package lchannels
 
 import scala.annotation.meta.field
-import scala.concurrent.{blocking, ExecutionContext, Future, Promise}
-import scala.concurrent.duration.FiniteDuration
-import scala.util.{Try, Success, Failure}
+import scala.concurrent.{blocking, ExecutionContext, Future}
+import scala.concurrent.duration.{Duration, FiniteDuration}
+import scala.util.{Try, Success}
+
+import java.util.concurrent.{LinkedTransferQueue => Fifo}
 
 import akka.typed.{ActorRef, Props}
 import akka.typed.ScalaDSL.{Stopped, Partial, Total}
@@ -219,6 +221,15 @@ private case class Dest[T](ref: ActorRef[Try[T]]) extends ValueOrDest[T]
 protected[lchannels] class ActorIn[T](bref: ActorRef[Dest[T]])
                                      (@(transient @field) implicit val as: akka.actor.ActorSystem)
     extends medium.In[Actor, T] with Serializable {
+  // We have to reimplement usage flags in a serializable way
+  private var used = false
+  protected final def _markAsUsed() : Unit = synchronized {
+    if (used) {
+      throw new lchannels.AlreadyUsed()
+    }
+    used = true
+  }
+  
   /** Return the path of the Akka actor giving access to the channel endpoint
    *  
    *  The path allows to (remotely) proxy the channel endpoint,
@@ -227,35 +238,27 @@ protected[lchannels] class ActorIn[T](bref: ActorRef[Dest[T]])
   def path: akka.actor.ActorPath = bref.path
   
   @transient
-  private var _future: Future[T] = null
-
-  @transient
   private var _ref: ActorRef[Try[T]] = null
 
-  override def future = synchronized {
-    if (_future == null) {
-      import akka.typed.Ops
-      val (pT, fT, hT) = buildPFBeh
-      _future = fT
-      _ref = Ops.ActorSystemOps(Defaults.getActorSys(as)).spawn(Props(hT))
-      bref ! Dest(_ref)
+  override def receive(implicit atMost: Duration) = {
+    _markAsUsed()
+    // FIXME: can be definitely optimised
+    import akka.typed.Ops
+    val (fifo, hT) = buildPFBeh
+    _ref = Ops.ActorSystemOps(Defaults.getActorSys(as)).spawn(Props(hT))
+    bref ! Dest(_ref)
+    if (atMost.isFinite) {
+      // recvd value has type Try[T]
+      fifo.poll(atMost.length, atMost.unit).get.asInstanceOf[T]
+    } else {
+      fifo.take().get.asInstanceOf[T] // recvd value has type T
     }
-    _future
   }
 
-  private def buildPFBeh: (Promise[T], Future[T], Total[Try[T]]) = {
-    val pT = scala.concurrent.Promise[T]()
-    val fT = pT.future
-    // FIXME: handle timeout, by letting the promise fail?
-    val hT = Total[Try[T]] {
-      case Success(v) => {
-        pT.success(v); Stopped
-      }
-      case Failure(e) => {
-        pT.failure(e); Stopped
-      }
-    }
-    (pT, fT, hT)
+  private def buildPFBeh: (Fifo[Try[T]], Total[Try[T]]) = {
+    val fifo = new Fifo[Try[T]]()
+    val hT = Total[Try[T]]( v => { fifo.put(v); Stopped } )
+    (fifo, hT)
   }
 
   override def toString() = {
@@ -329,6 +332,15 @@ protected[lchannels] class ActorOut[-T](bref: ActorRef[Value[T]])
                                        (implicit @(transient @field) val ec: ExecutionContext,
                                                  @(transient @field) val as: akka.actor.ActorSystem)
     extends medium.Out[Actor, T] with Serializable {
+  // We have to reimplement usage flags in a serializable way
+  private var used = false
+  protected final def _markAsUsed() : Unit = synchronized {
+    if (used) {
+      throw new lchannels.AlreadyUsed()
+    }
+    used = true
+  }
+  
   /** Return the path of the Akka actor giving access to the channel endpoint
    *  
    *  The path allows to (remotely) proxy the channel endpoint,
@@ -336,22 +348,9 @@ protected[lchannels] class ActorOut[-T](bref: ActorRef[Value[T]])
    */
   def path: akka.actor.ActorPath = bref.path
   
-  @transient
-  private var _promise: Promise[_] = null // Will actually be Promise[T]
-
-  override def promise[U <: T] = synchronized {
-    if (_promise == null) {
-      _promise = Promise[Any] // Will be actually used as a Promise[T]
-
-      // The following cast is safe: the returned promise can only
-      // be completed with U-typed values, which are also T-typed
-      _promise.future.asInstanceOf[Future[T]].onComplete { v =>
-        bref ! Value(v)
-      }(Defaults.getExCtx(ec))
-    }
-    // The following cast is safe: the returned promise can only
-    // be completed with U-typed values, which are also T-typed
-    _promise.asInstanceOf[Promise[U]]
+  override def send(v: T) = synchronized {
+    _markAsUsed()
+    bref ! Value(Success(v))
   }
 
   override def create[U](): (ActorIn[U], ActorOut[U]) = {

@@ -26,9 +26,8 @@
 /** @author Alceste Scalas <alceste.scalas@imperial.ac.uk> */
 package lchannels
 
-import scala.concurrent.{blocking, ExecutionContext, Future, Promise}
+import scala.concurrent.{blocking, ExecutionContext, Future}
 import scala.concurrent.duration.Duration
-import scala.util.{Success, Failure}
 
 import java.util.concurrent.{LinkedTransferQueue => Fifo}
 
@@ -82,77 +81,17 @@ object QueueChannel {
 /** Queue-based input endpoint, usually created via [[QueueChannel.factory]]. */
 class QueueIn[+T](fifo: Fifo[Any])
                  (implicit ec: ExecutionContext) extends medium.In[Local, T] {
-  // Usage states
-  @inline
-  private final val UNUSED = 0 // _future and recvValue are null
-  @inline
-  private final val FUTURED = 1 // Future created; receive() must use it
-  @inline
-  private final val RECEIVING = 2 // receive() invoked, switching to RECEIVED
-  @inline
-  private final val RECEIVED = 3 // value received; recvValue available
-  
-  private val usage = new java.util.concurrent.atomic.AtomicInteger(UNUSED)
-  private var recvValue: Any = null // Will actually be a value of type T
-  private var _future: Future[_] = null // Will actually be Future[T]
-  override def future = synchronized {
-    if (!usage.compareAndSet(UNUSED, FUTURED)) {
-      usage.get match {
-        case FUTURED => () // _future already created, nothing to do
-        case RECEIVING => {
-          // receive() invoked
-          while (usage.get != RECEIVED) {} // Busy wait for recvValue
-          _future = Future.successful(recvValue) // recvValue has type T
-        }
-        case RECEIVED => {
-          // recvValue is available
-          _future = Future.successful(recvValue) // recvValue has type T
-        }
-      }
-    } else {
-      _future = Future {
-        recvValue = fifo.take()
-        if (!usage.compareAndSet(FUTURED, RECEIVED)) {
-          throw new RuntimeException("BUG in QueueIn.future!")
-        }
-        recvValue
-      } // Note: this future has type Future[T]
-    }
-    // This cast is safe: the returned future only retrieves a T-typed value
-    _future.asInstanceOf[Future[T]]
+  override def receive(): T = {
+    markAsUsed()
+    fifo.take().asInstanceOf[T]
   }
   
   override def receive(implicit d: Duration): T = {
-    if (!usage.compareAndSet(UNUSED, RECEIVING)) {
-      usage.get match {
-        case FUTURED => {
-          // Future already created, we cannot use the channel directly
-          super.receive
-        }
-        case RECEIVING => {
-          // receive() has been invoked by some other thread
-          while (usage.get != RECEIVED) {} // Busy wait for recvValue
-          recvValue.asInstanceOf[T] // recvValue has type T
-        }
-        case RECEIVED => {
-          // recvValue is available
-          recvValue.asInstanceOf[T] // recvValue has type T
-        }
-      }
+    markAsUsed()
+    if (d.isFinite) {
+      fifo.poll(d.length, d.unit).asInstanceOf[T] // recvd value has type T
     } else {
-      if (d.isFinite) {
-        recvValue = fifo.poll(d.length, d.unit)
-        if (recvValue == null) {
-          // FIXME: Cannot distinguish a timeout when T is Null :-(
-          throw new java.util.concurrent.TimeoutException("Channel timed out")
-        }
-      } else {
-        recvValue = fifo.take()
-      }
-      if (!usage.compareAndSet(RECEIVING, RECEIVED)) {
-        throw new RuntimeException("BUG in QueueIn.receive!")
-      }
-      recvValue.asInstanceOf[T] // recvValue has type T
+      fifo.take().asInstanceOf[T] // recvd value has type T
     }
   }
 }
@@ -160,79 +99,11 @@ class QueueIn[+T](fifo: Fifo[Any])
 /** Queue-based output endpoint, usually created via [[QueueChannel.factory]]. */
 class QueueOut[-T](fifoW: Fifo[Any], fifoR: Fifo[Any])
                   (implicit ec: ExecutionContext) extends medium.Out[Local, T] {
-  // Usage states
-  @inline
-  private final val UNUSED = 0 // _promise and sentValue are null
-  @inline
-  private final val PROMISED = 1 // Promise created; send() must use it
-  @inline
-  private final val SENDING = 2 // send()/Promise invoked, switching to SENT
-  @inline
-  private final val SENT = 3 // value actually sent; sentValue available
   
-  private val usage = new java.util.concurrent.atomic.AtomicInteger(UNUSED)
-  private var sentValue: Any = null // Will actually be a value of type T
-  private var _promise: Promise[_] = null // Will actually be Promise[T]
-  override def promise[U <: T] = synchronized {
-    if (!usage.compareAndSet(UNUSED, PROMISED)) {
-      usage.get match {
-        case PROMISED => () // _promise already created, nothing to do
-        case SENDING => {
-          // send() invoked or Promise completed
-          while (usage.get != SENT) {} // Busy wait for sentValue
-          _promise = Promise.successful(sentValue) // sentValue has type T
-        }
-        case SENT => {
-          // sentValue is available
-          _promise = Promise.successful(sentValue) // sentValue has type T
-        }
-      }
-    } else {
-      _promise = Promise[Any] // Will be actually used as a Promise[T]
-      
-      // The following cast is safe: the returned promise can only
-      // be completed with U-typed values, which are also T-typed
-      _promise.future.asInstanceOf[Future[T]] onComplete {
-        case Success(v) => {
-          if (!usage.compareAndSet(PROMISED, SENDING)) {
-            throw new RuntimeException("BUG in QueueOut.promise!")
-          }
-          fifoW.put(v)
-          sentValue = v
-          if (!usage.compareAndSet(SENDING, SENT)) {
-            throw new RuntimeException("BUG in QueueOut.promise!")
-          }
-        }
-        case Failure(e) => throw e // FIXME: can we do better?
-      }
-    }
-    // The following cast is safe: the returned promise can only
-    // be completed with U-typed values, which are also T-typed
-    _promise.asInstanceOf[Promise[U]]
-  }
   
   override def send(msg: T): Unit = {
-    if (!usage.compareAndSet(UNUSED, SENDING)) {
-      usage.get match {
-        case PROMISED => {
-          // Promise already created, we cannot use the channel directly
-          promise success msg
-        }
-        case SENDING => {
-          // send() has been invoked by some other thread
-          throw new IllegalStateException("Output channel already used")
-        }
-        case SENT => {
-          throw new IllegalStateException("Output channel already used")
-        }
-      }
-    } else {
-      fifoW.put(msg)
-      sentValue = msg
-      if (!usage.compareAndSet(SENDING, SENT)) {
-        throw new RuntimeException("BUG in QueueOut.send!")
-      }
-    }
+    markAsUsed()
+    fifoW.put(msg)
   }
   
   override def create[U](): (QueueIn[U], QueueOut[U]) = {

@@ -43,9 +43,8 @@ object LChannelsImpl {
   
   @scala.annotation.tailrec
   def forwarder(in: In[Command],
-                   out: Out[Command])
-                  (implicit d: Duration): Unit = {
-    in.receive match {
+                out: Out[Command]): Unit = {
+    in.receive() match {
       case Stop() => out ! Stop()
       case m @ Fwd(msg) => forwarder(m.cont, out !! Fwd(msg)_)
     }
@@ -54,18 +53,17 @@ object LChannelsImpl {
   @scala.annotation.tailrec
   def master(in: In[Command],
              out: Out[Command],
-             msg: String, ts: Long, n: Int)
-            (implicit d: Duration): Long = {
+             msg: String, ts: Long, n: Int): Long = {
     val ts2 = if (ts == 0) System.nanoTime() else ts
     if (n > 0) {
       val outCont = out !! Fwd(msg)_
-      in.receive match {
+      in.receive() match {
         case Stop() => throw new RuntimeException("BUG in ring benchmark!")
         case m @ Fwd(_) => master(m.cont, outCont, msg, ts2, n-1)
       }
     } else {
       out ! Stop()
-      in.receive match {
+      in.receive() match {
         case Stop() => System.nanoTime() - ts2
         case Fwd(_) => throw new RuntimeException("BUG in ring benchmark!")
       }
@@ -75,14 +73,14 @@ object LChannelsImpl {
   @scala.annotation.tailrec
   def masterStream(in: In[Command],
                    out: Out[Command],
-                   msg: String, ts: Long, msgCount: Int, sent: Int, recvd: Int)
-                  (implicit d: Duration): Long = {
+                   msg: String, ts: Long, msgCount: Int,
+                   sent: Int, recvd: Int): Long = {
     val ts2 = if (ts == 0) System.nanoTime() else ts
     
     if (sent < msgCount) {
       masterStream(in, out !! Fwd(msg)_, msg, ts2, msgCount, sent+1, recvd)
     } else if (recvd < msgCount) {
-      in.receive match {
+      in.receive() match {
         case m @ Fwd(_) => {
           masterStream(m.cont, out, msg, ts2, msgCount, sent, recvd+1)
         }
@@ -90,7 +88,7 @@ object LChannelsImpl {
       }
     } else {
       out ! Stop()
-      in.receive match {
+      in.receive() match {
         case Fwd(_) => throw new RuntimeException("BUG in ring benchmark!")
         case Stop() => System.nanoTime() - ts2
       }
@@ -479,8 +477,10 @@ object Benchmark {
                          maxWait: Duration)
                         (implicit d: Duration): Long = {
     val channels = for (j <- 0 until ringSize) yield factory()
-    for (j <- 0 until ringSize-1) yield Future {
-      blocking { LChannelsImpl.forwarder(channels(j)._1, channels(j+1)._2) }
+    for (j <- 0 until ringSize-1) {
+      new Thread(new Runnable {
+        def run() = LChannelsImpl.forwarder(channels(j)._1, channels(j+1)._2)
+      }, f"Forwarder ${j+1}").start()
     }
     val res = Future {
       blocking {
@@ -504,10 +504,10 @@ object Benchmark {
       val p = Promise[PromiseFutureImpl.Command]; val f = p.future
       (f, p)
     }
-    for (j <- 0 until ringSize-1) Future {
-      blocking {
-        PromiseFutureImpl.forwarder(channels(j)._1, channels(j+1)._2)
-      }
+    for (j <- 0 until ringSize-1) {
+      new Thread(new Runnable {
+        def run() = PromiseFutureImpl.forwarder(channels(j)._1, channels(j+1)._2)
+      }, f"Forwarder ${j+1}").start()
     }
     val res = Future {
       blocking {
@@ -532,8 +532,10 @@ object Benchmark {
     val channels = for (j <- 0 until ringSize) yield {
       new Channel[ScalaChannelsImpl.Command]
     }
-    for (j <- 0 until ringSize-1) Future {
-      blocking { ScalaChannelsImpl.forwarder(channels(j), channels(j+1)) }
+    for (j <- 0 until ringSize-1) {
+      new Thread(new Runnable {
+        def run() = ScalaChannelsImpl.forwarder(channels(j), channels(j+1))
+      }, f"Forwarder ${j+1}").start()
     }
     val res = Future {
       blocking {
@@ -559,10 +561,10 @@ object Benchmark {
       // NOTE: qFactory must return queues big enough for all message exchanges
       qFactory()
     }
-    for (j <- 0 until ringSize-1) yield Future {
-      blocking {
-        JavaBlockingQueuesImpl.forwarder(channels(j), channels(j+1))
-      }
+    for (j <- 0 until ringSize-1) {
+      new Thread(new Runnable {
+        def run() = JavaBlockingQueuesImpl.forwarder(channels(j), channels(j+1))
+      }, f"Forwarder ${j+1}").start()
     }
     val res = Future {
       blocking {

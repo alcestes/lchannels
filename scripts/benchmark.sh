@@ -29,6 +29,7 @@ for rep in `seq 1 $repetitions`; do
     echo
 done
 
+# Concatenate benchmark files (skipping the first 2 lines with title/headers)
 echo "*** Concatenating benchmark results..."
 cp bench/1/* .
 

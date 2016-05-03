@@ -26,7 +26,8 @@
 /** @author Alceste Scalas <alceste.scalas@imperial.ac.uk> */
 package lchannels
 
-import scala.concurrent.{blocking, ExecutionContext, Future, Promise}
+import scala.concurrent.{Await, blocking, ExecutionContext, Future, Promise}
+import scala.concurrent.duration.Duration
 
 /** The medium of local channel endpoints. */
 case class Local()
@@ -63,10 +64,14 @@ object LocalChannel {
 }
 
 /** Local input channel endpoint, usually created via [[LocalChannel.factory]]. */
-class LocalIn[+T](val future: Future[T]) extends medium.In[Local, T] {}
+class LocalIn[+T](val future: Future[T]) extends medium.In[Local, T] {
+  override def receive(implicit atMost: Duration): T = {
+    Await.result[T](future, atMost)
+  }
+}
 
 /** Local output channel endpoint, usually created via [[LocalChannel.factory]]. */
-class LocalOut[-T](p: Promise[T]) extends medium.Out[Local, T] {
+class LocalOut[-T](p: Promise[T]) extends medium.Out[Local, T] {  
   override def promise[U <: T] = {
     // The following cast is safe: the returned promise can only
     // be completed with U-typed values, which are also T-typed
@@ -74,4 +79,8 @@ class LocalOut[-T](p: Promise[T]) extends medium.Out[Local, T] {
   }
   
   override def create[U]() = LocalChannel.factory[U]()
+  
+  override def send(msg: T): Unit = {
+    promise success msg
+  }
 }

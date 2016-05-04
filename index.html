@@ -97,16 +97,19 @@ case class Balance(amount: Int) // User account balance
 
       <pre><code class="prettyprint lang-scala">def atm(c: In[Authenticate]) = {
   c ? { auth =>
-    /* Check auth.card and auth.pin, and suppose we accept them... */
-    ( auth.cont !! Success()_ ) ? {   // Send Success(), then wait for request
-      case m @ CheckBalance() => m.cont ! Balance(42)
-      case Quit()             => ()
-} } }
+    if (!authenticated(auth.card, auth.pin)) {
+      auth.cont ! Failure()
+    } else {
+      ( auth.cont !! Success()_ ) ? {
+        case m @ CheckBalance() => m.cont ! Balance(42)
+        case Quit()             => ()
+} } } }
 </code></pre>
 
       <p>
 	The Scala compiler will ensure that the ATM program does not
-	send the wrong type of message (e.g., sending <code>Balance</code>
+	send the wrong type of message
+	(e.g., trying to send <code>Balance</code>
 	when <code>Success</code>/<code>Failure</code> are expected),
 	and that it does not forget to handle some valid user requests
 	(e.g., it will warn if the <code>Quit</code> case is missing).

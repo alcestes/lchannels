@@ -27,23 +27,42 @@
 package lchannels.examples.game.demo
 
 import lchannels._
-import lchannels.examples.game.protocol.binary
+import lchannels.examples.game.protocol.binary.{PlayA, PlayB, PlayC}
 
 object Local extends App {
   // Helper method to ease external invocation
   def run() = main(Array())
   
-  import scala.concurrent.duration._
+  Demo.start(LocalChannel.factory[PlayA],
+             LocalChannel.factory[PlayB],
+             LocalChannel.factory[PlayC])
+}
+
+object Queue extends App {
+  // Helper method to ease external invocation
+  def run() = main(Array())
+  import scala.concurrent.ExecutionContext.Implicits.global
   
-  implicit val timeout = 10.seconds
-  
-  // Client/server channels for players A, B, C
-  val (ca, sa) = LocalChannel.factory[binary.PlayA]()
-  val (cb, sb) = LocalChannel.factory[binary.PlayB]()
-  val (cc, sc) = LocalChannel.factory[binary.PlayC]()
-  
-  val server = new lchannels.examples.game.server.Server(sa, sb, sc)
-  val a = new lchannels.examples.game.a.Client("Alice", ca, 3.seconds)
-  val b = new lchannels.examples.game.b.Client("Bob", cb, 1.second)
-  val c = new lchannels.examples.game.c.Client("Carol", cc, 2.seconds)
+  Demo.start(QueueChannel.factory[PlayA],
+             QueueChannel.factory[PlayB],
+             QueueChannel.factory[PlayC])
+}
+
+object Demo {
+  def start(afactory: () => (In[PlayA], Out[PlayA]),
+            bfactory: () => (In[PlayB], Out[PlayB]),
+            cfactory: () => (In[PlayC], Out[PlayC])) = {
+    import scala.concurrent.duration._
+    implicit val timeout = 10.seconds
+    
+    // Client/server channels for players A, B, C
+    val (ca, sa) = afactory()
+    val (cb, sb) = bfactory()
+    val (cc, sc) = cfactory()
+    
+    val server = new lchannels.examples.game.server.Server(sa, sb, sc)
+    val a = new lchannels.examples.game.a.Client("Alice", ca, 3.seconds)
+    val b = new lchannels.examples.game.b.Client("Bob", cb, 1.second)
+    val c = new lchannels.examples.game.c.Client("Carol", cc, 2.seconds)
+  }
 }

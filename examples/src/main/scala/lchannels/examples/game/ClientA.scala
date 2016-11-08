@@ -97,3 +97,35 @@ class Client(name: String, s: In[binary.PlayA], wait: Duration)
 	  }
   }
 }
+
+object Actor extends App {
+  // Helper method to ease external invocation
+  def run() = main(Array())
+  
+  import scala.concurrent.duration._
+  import scala.concurrent.ExecutionContext.Implicits.global
+  import com.typesafe.config.ConfigFactory
+  import akka.actor.ActorSystem
+  
+  import binary.actor.{ConnectA => Connect}
+  
+  val config = ConfigFactory.load() // Loads resources/application.conf
+  implicit val as = ActorSystem("GameClientASys",
+                          config = Some(config.getConfig("GameClientASys")),
+                          defaultExecutionContext = Some(global))
+  
+  ActorChannel.setDefaultEC(global)
+  ActorChannel.setDefaultAS(as)
+  
+  implicit val timeout = 30.seconds
+  
+  val serverPath =  "akka.tcp://GameServerSys@127.0.0.1:31340/user/a"
+  println(f"[*] Connecting to ${serverPath}...")
+  val c: Out[Connect] = ActorOut[Connect](serverPath)
+  val c2 = c !! Connect()_
+  
+  val client = new Client("Alice", c2, 3.seconds)
+  
+  client.join()
+  as.terminate()
+}

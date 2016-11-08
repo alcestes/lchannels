@@ -65,3 +65,44 @@ class Server(ca: Out[binary.PlayA],
     logInfo("Quitting.")
   }
 }
+
+object Actor extends App {
+  // Helper method to ease external invocation
+  def run() = main(Array())
+  
+  import scala.concurrent.duration._
+  import scala.concurrent.ExecutionContext.Implicits.global
+  import com.typesafe.config.ConfigFactory
+  import akka.actor.ActorSystem
+  
+  val config = ConfigFactory.load() // Loads resources/application.conf
+  implicit val as = ActorSystem("GameServerSys",
+                          config = Some(config.getConfig("GameServerSys")),
+                          defaultExecutionContext = Some(global))
+  
+  ActorChannel.setDefaultEC(global)
+  ActorChannel.setDefaultAS(as)
+  
+  implicit val timeout = 30.seconds
+  
+  // We give a human-readable name to the connection endpoints
+  val (ai, ao) = ActorChannel.factory[binary.actor.ConnectA]("a");
+  val (bi, bo) = ActorChannel.factory[binary.actor.ConnectB]("b");
+  val (ci, co) = ActorChannel.factory[binary.actor.ConnectC]("c");
+  println(f"[*] Waiting connections on: ${ao.path}, ${bo.path}, ${co.path}")
+  
+  val ac = ai.receive
+  println(f"[*] Player A connected")
+  val bc = bi.receive
+  println(f"[*] Player B connected")
+  val cc = ci.receive
+  println(f"[*] Player C connected.  Launching server thread...")
+  
+  val server = new Server(ac.cont, bc.cont, cc.cont)
+  
+  server.join()
+  println(f"[*] Delaying termination to complete game delegation")
+  Thread.sleep(10000)
+  println(f"[*] Quitting")
+  as.terminate()
+}

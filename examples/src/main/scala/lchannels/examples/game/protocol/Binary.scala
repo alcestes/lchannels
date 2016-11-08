@@ -58,3 +58,12 @@ case class Mov2BC(p: Boolean)(val cont: In[Mov1BCOrMov2BC]) extends Mov1BCOrMov2
 
 case class PlayC(p: c.MPInfoBC)
 // No more protocol classes needed for player C: they are shared with A and B
+
+/** Binary protocol classes for establishing a client/server connection
+ *  (used e.g. in the actor-based demo)
+ */
+package object actor {
+  case class ConnectA()(val cont: Out[PlayA])
+  case class ConnectB()(val cont: Out[PlayB])
+  case class ConnectC()(val cont: Out[PlayC])
+}

@@ -65,15 +65,47 @@ class Client(name: String, s: In[binary.PlayB], wait: Duration)
     logInfo("Waiting for A's move...")
     g.receive() match {
       case Mov1AB(p, cont) => {
-        logInfo(f"Got Mov1AB(${p}), sending Mov1BC(${p} and looping")
+        logInfo(f"Got Mov1AB(${p}), sending Mov1BC(${p}) and looping")
         val g2 = cont.send(Mov1BC(p))
         loop(g2)
       }
       case Mov2AB(p, cont) => {
-        logInfo(f"Got Mov2AB(${p}), sending Mov2BC(${p} and looping")
+        logInfo(f"Got Mov2AB(${p}), sending Mov2BC(${p}) and looping")
         val g2 = cont.send(Mov2BC(p))
         loop(g2)
       } 
     }
   }
+}
+
+object Actor extends App {
+  // Helper method to ease external invocation
+  def run() = main(Array())
+  
+  import scala.concurrent.duration._
+  import scala.concurrent.ExecutionContext.Implicits.global
+  import com.typesafe.config.ConfigFactory
+  import akka.actor.ActorSystem
+  
+  import binary.actor.{ConnectB => Connect}
+  
+  val config = ConfigFactory.load() // Loads resources/application.conf
+  implicit val as = ActorSystem("GameClientBSys",
+                          config = Some(config.getConfig("GameClientBSys")),
+                          defaultExecutionContext = Some(global))
+  
+  ActorChannel.setDefaultEC(global)
+  ActorChannel.setDefaultAS(as)
+  
+  implicit val timeout = 30.seconds
+  
+  val serverPath =  "akka.tcp://GameServerSys@127.0.0.1:31340/user/b"
+  println(f"[*] Connecting to ${serverPath}...")
+  val c: Out[Connect] = ActorOut[Connect](serverPath)
+  val c2 = c !! Connect()_
+  
+  val client = new Client("Bob", c2, 2.seconds)
+  
+  client.join()
+  as.terminate()
 }

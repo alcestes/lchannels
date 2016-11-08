@@ -97,7 +97,7 @@ object Actor extends App {
   ActorChannel.setDefaultEC(global)
   ActorChannel.setDefaultAS(as)
   
-  implicit val timeout = 30.seconds
+  implicit val timeout = 60.seconds
   
   val serverPath =  "akka.tcp://GameServerSys@127.0.0.1:31340/user/b"
   println(f"[*] Connecting to ${serverPath}...")

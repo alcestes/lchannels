@@ -83,7 +83,7 @@ object Actor extends App {
   ActorChannel.setDefaultEC(global)
   ActorChannel.setDefaultAS(as)
   
-  implicit val timeout = 30.seconds
+  implicit val timeout = 120.seconds
   
   // We give a human-readable name to the connection endpoints
   val (ai, ao) = ActorChannel.factory[binary.actor.ConnectA]("a");

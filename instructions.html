@@ -26,12 +26,10 @@
 
     <section class="main-content">
       <p>
-	<strong>NOTE:</strong> the references below point to
+	<strong>NOTE:</strong> unless otherwise noted,
+	the references below point to
 	specific sections and figures in the <strong>on-line
-	  technical report</strong>, available at:
-	<!-- This copy of the TR has not been updated (as of May 6, 2016)
-	  <strong><code><a href="http://www.doc.ic.ac.uk/research/technicalreports/2015/#7">http://www.doc.ic.ac.uk/research/technicalreports/2015/#7</a></code></strong>.
-	-->
+	  technical report</strong> available at:
 	<strong><code><a href="http://mrg.doc.ic.ac.uk/publications/lightweight-session-programming-in-scala/paper.pdf">http://mrg.doc.ic.ac.uk/publications/lightweight-session-programming-in-scala/paper.pdf</a></code></strong>.
       </p>
 
@@ -143,13 +141,19 @@ sudo update-alternatives --config javac     # Ensure that Java 8 is selected
  [1] lchannels.examples.calc.Local
  [2] lchannels.examples.calc.Queue
  [3] lchannels.examples.chat.demo.Local
- [4] lchannels.examples.greeting.ActorClient
- [5] lchannels.examples.greeting.ActorServer
- [6] lchannels.examples.greeting.Local
- [7] lchannels.examples.greeting.Queue
- [8] lchannels.examples.greeting.SocketClient
- [9] lchannels.examples.greeting.StreamClient
- [10] lchannels.examples.sleepingbarber.demo.Local
+ [4] lchannels.examples.game.a.Actor
+ [5] lchannels.examples.game.b.Actor
+ [6] lchannels.examples.game.c.Actor
+ [7] lchannels.examples.game.demo.Local
+ [8] lchannels.examples.game.demo.Queue
+ [9] lchannels.examples.game.server.Actor
+ [10] lchannels.examples.greeting.ActorClient
+ [11] lchannels.examples.greeting.ActorServer
+ [12] lchannels.examples.greeting.Local
+ [13] lchannels.examples.greeting.Queue
+ [14] lchannels.examples.greeting.SocketClient
+ [15] lchannels.examples.greeting.StreamClient
+ [16] lchannels.examples.sleepingbarber.demo.Local
 
 Enter number:
 </pre>
@@ -181,6 +185,27 @@ Enter number:
 	  <strong><code>lchannels.examples.sleepingbarber</code></strong>:
 	  the "sleeping barber" of Example 4.3.
 	  <em><a href="https://github.com/alcestes/lchannels/tree/master/examples/src/main/scala/lchannels/examples/sleepingbarber/Demo.scala">(Source)</a></em>
+	</li>
+	<li>
+	  <strong><code>lchannels.examples.game</code></strong>:
+	  three players connect to a game server, that creates a multiparty
+	  session allowing the players to interact directly.
+	  <em><a href="https://github.com/alcestes/lchannels/tree/master/examples/src/main/scala/lchannels/examples/game/Demo.scala">(Source)</a></em>
+	  This example shows how type-safe multiparty sessions,
+	  and distributed multiparty delegation, can be implemented
+	  on top of the binary channel endpoints provided by
+	  <code>lchannels</code>.  This is based on the theoretical
+	  results presented in	  
+	  <a href="https://www.doc.ic.ac.uk/~ascalas/mpst-linear/">this
+	    technical report</a>.  Note that the protocol classes
+	  used in this example
+	  (collected
+	  in <a href="https://github.com/alcestes/lchannels/tree/master/examples/src/main/scala/lchannels/examples/game/protocol">these files</a>)
+	  are automatically generated from
+	  <a href="https://github.com/alcestes/scribble-java/blob/linear-channels/modules/linmp-scala/src/test/scrib/Game3.scr">this
+	  protocol specification</a>, using
+	  <a href="https://github.com/alcestes/scribble-java/tree/linear-channels">an extended version of the Scribble tool</a>.
+	  
 	</li>
       </ul>
       
@@ -228,6 +253,38 @@ Enter number:
 </code></pre>
 
 	      and from the prompt, select <code>lchannels.examples.greeting.ActorClient</code>.
+	    </li>
+	  </ol>
+	</li>
+	<li>
+	  <strong><code>lchannels.examples.greeting.(a / b / c / server).Actor</code></strong>
+	  is the 3-player game using actor-based channels.
+	  The <code>server</code> and the three
+	  players <code>a</code>,<code>b</code>,<code>c</code> can be
+	  launched <em>on different JVMs</em>, and in this case,
+	  a <em>distributed multiparty session delegation</em>
+	  will occur transparently.  If you want to try it, you need to:
+	   <ol>
+	    <li>
+	      <em>first</em>, launch the <code>server</code> by
+	      selecting <code>lchannels.examples.game.server.Actor</code>
+	      from the prompt above;
+	    </li>
+	    <li>
+	      <em>then</em>, while the server is running,
+	      on <em>3 other terminals</em> you should execute again:
+
+	      <pre><code>sbt "project examples" run
+</code></pre>
+
+	      and from the prompt,
+	      select <code>lchannels.examples.game.(a / b / c).Actor</code>.
+	      Note that <em>the server creates the multiparty
+		session</em> and <em>performs a (distributed) delegation</em>:
+	      i.e., when the 3 players start interacting, the session
+	      <em>becomes independent from the server</em>,
+	      and when the server JVM terminates, the ongoing game
+	      is not disturbed.
 	    </li>
 	  </ol>
 	</li>

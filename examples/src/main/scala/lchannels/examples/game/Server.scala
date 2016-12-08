@@ -53,10 +53,39 @@ class Server(ca: Out[binary.PlayA],
   
   override def run() = {
     logInfo("Starting.  Creating binary channels for multiparty game...")
+
+    // We need to create a pair of channel endpoints for each pair of
+    // connected roles in the multiparty game session.  We use the create()
+    // method because:
+    //
+    //   (1) ca.create() ensures that the returned channel endpoints use the
+    //       same message transport of ca (and similarly for cb and cc);
+    //
+    //   (2) we need *both* input/output endpoints, so that later we can
+    //       instantiate a.MPInfoCA, b.MPInfoBC and c.MPInfoBC, and send
+    //       them to the session participants;
+    //
+    //   (3) we do not *want* to use e.g. ca.!!(...), because it would only
+    //       return *one* endpoint, and later we would not be able to
+    //       instantiate MPInfoCA, b.MPInfoBC, c.MPInfoBC;
+    //
+    //   (3) anyway, we *cannot* meaningfully use e.g. ca.!!(...): since
+    //       the carried type has no continuation, it is quite difficult to
+    //       come up with a "reasonable" value for "..." that is accepted by
+    //       the Scala compiler.  E.g., the following is accepted, but
+    //       is visibly bogus:   ca !! ((_:In[Int]) => null)
     val (abi, abo) = ca.create[binary.InfoAB]
     val (bci, bco) = cb.create[binary.InfoBC]
     val (cai, cao) = cc.create[binary.InfoCA]
     
+    // We now instantiate multiparty session objects (i.e., n-uples of
+    // binary linear channels), and send them to our clients via channels
+    // ca, cb, cc.
+    //
+    // Note that the types of the arguments of a.MPInfoCA, bMPInfoBC and
+    // c.MPInfoCA ensure that the channel endpoints above are used in the
+    // correct way: if the wrong channel is used somewhere, the resulting
+    // code does not compile
     logInfo("...and sending multiparty objects to clients.")
     ca ! binary.PlayA(a.MPInfoCA(abo, cai))
     cb ! binary.PlayB(b.MPInfoBC(abi, bco))

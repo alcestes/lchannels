@@ -78,7 +78,7 @@ import java.io.{
  *  
  *  @param socket the socket managed by the instance
  *  @param relaxHeaders if true, skip unmanaged HTTP headers (otherwise, error)
- *  @param logging function, used to report e.g. skipped headers and other info 
+ *  @param logger logging function, used to report e.g. skipped headers and other info 
  */
 class HttpServerSocketManager(socket: Socket,
                               relaxHeaders: Boolean,

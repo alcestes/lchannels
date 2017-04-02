@@ -29,13 +29,44 @@ package lchannels.examples.http.server
 import lchannels._
 import lchannels.examples.http.protocol.binary
 import lchannels.examples.http.protocol.server._
+import lchannels.examples.http.protocol.server.{Server => ServerName} // Clash
 import lchannels.examples.http.protocol.types._
 
 import scala.concurrent.duration._
 import java.net.Socket
+import java.nio.file.{Path, Paths}
+import java.time.ZonedDateTime;
 import com.typesafe.scalalogging.StrictLogging
+
+object Server extends App {
+  // Helper method to ease external invocation
+  def run() = main(Array())
   
-class Worker(id: Int, socket: Socket)
+  import java.net.{InetAddress, ServerSocket}
+  
+  val root = java.nio.file.FileSystems.getDefault().getPath("").toAbsolutePath
+  
+  val address = InetAddress.getByName(null)
+  val port = 8080
+  val ssocket = new ServerSocket(port, 0, address)
+  
+  println(f"[*] HTTP server listening on: http://${address.getHostAddress}:${port}/")
+  println(f"[*] Root directory: ${root}")
+  println(f"[*] Press Ctrl+C to terminate")
+  
+  implicit val timeout = 120.seconds
+  accept(1)
+  
+  @scala.annotation.tailrec
+  def accept(nextWorkerId: Int) {
+    val client = ssocket.accept()
+    println(f"[*] Connection from ${client.getInetAddress}, spawning worker")
+    new Worker(nextWorkerId, client, root)
+    accept(nextWorkerId + 1)
+  }
+}
+
+class Worker(id: Int, socket: Socket, root: Path)
             (implicit timeout: Duration)
     extends Runnable with StrictLogging {
   private def logTrace(msg: String) = logger.trace(f"Worker [${id}]: ${msg}")
@@ -43,6 +74,9 @@ class Worker(id: Int, socket: Socket)
   private def logInfo(msg: String) = logger.info(f"Worker [${id}]: ${msg}")
   private def logWarn(msg: String) = logger.warn(f"Worker [${id}]: ${msg}")
   private def logError(msg: String) = logger.error(f"Worker [${id}]: ${msg}")
+  
+  private val serverName = "lchannels HTTP server"
+  private val pslash = Paths.get("/") // Used to relativize request paths
 
   // Own thread
   private val thread = { val t = new Thread(this); t.start(); t }
@@ -53,18 +87,39 @@ class Worker(id: Int, socket: Socket)
     
     // Create a SocketChannel (with the correct type) from the client socket...
     val c = SocketIn[binary.Request](
-        new binary.HttpServerSocketManager(socket, true, (m) => logInfo(m))
+        new binary.HttpServerSocketManager(socket, true, logInfo)
     )
     
     // ...and wrap it with a multiparty (in this case, binary) session object,
     // to hide continuation-passing
     val r = MPRequest(c)
     
-    val (path, cont) = getRequest(r)
+    val (rpath, cont) = getRequest(r)
     
-    cont.send(HttpVersion(Http11)).send(Code404("Sorry, this is just a test!"))
+    val path = root.resolve(pslash.relativize(Paths.get(rpath)))
+    logInfo(f"Resolved request path: ${path}")
     
-    logInfo("Quitting.")
+    val cont2 = cont.send(HttpVersion(Http11))
+    
+    val file = path.toFile
+    
+    if (!file.exists || !file.canRead) {
+      notFound(cont2, rpath)
+    } else {
+      logInfo("Resource found.")
+      val cont3 = cont2.send(Code200("OK"))
+        .send(ServerName(serverName))
+        .send(Date(ZonedDateTime.now))
+      if (file.isFile) {
+        serveFile(cont3, path)
+      } else if (file.isDirectory) {
+        serveDirectory(cont3, rpath, file)
+      } else {
+        throw new RuntimeException(f"BUG: unsupported resource type: ${path}")
+      }
+    }
+    
+    logInfo("Terminating.")
   }
   
   private def getRequest(c: MPRequest) = {
@@ -113,29 +168,49 @@ class Worker(id: Int, socket: Socket)
       choices(cont)
     }
   }
-}
-
-object Server extends App {
-  // Helper method to ease external invocation
-  def run() = main(Array())
   
-  import java.net.{InetAddress, ServerSocket}
+  private def notFound(c: MPCode200OrCode404, res: String) = {
+    logInfo(f"Resource not found: ${res}")
+    c.send(Code404("Not Found"))
+      .send(ServerName(serverName))
+      .send(Date(ZonedDateTime.now))
+      .send(ResponseBody(
+          Body("text/plain", f"Resource ${res} not found".getBytes("UTF-8"))))
+  }
   
-  val address = InetAddress.getByName(null)
-  val port = 8080
-  val ssocket = new ServerSocket(port, 0, address)
+  private def serveFile(c: MPResponseChoice, file: Path) = {
+    logInfo(f"Serving file: ${file}")
+    // TODO: for simplicity, we assume all files are UTF-8 and human-readable
+    c.send(ResponseBody(
+        Body("text/plain; charset=utf-8", java.nio.file.Files.readAllBytes(file))))
+  }
   
-  println(f"[*] HTTP server listening on: http://${address.getHostAddress}:${port}/")
-  println(f"[*] Press Ctrl+C to terminate")
-  
-  implicit val timeout = 120.seconds
-  accept(1)
-  
-  @scala.annotation.tailrec
-  def accept(nextWorkerId: Int) {
-    val client = ssocket.accept()
-    println(f"[*] Connection from ${client.getInetAddress}, spawning worker")
-    new Worker(nextWorkerId, client)
-    accept(nextWorkerId + 1)
+  private def serveDirectory(c: MPResponseChoice, rpath: String, dir: java.io.File) = {
+    logInfo(f"Serving directory: ${dir}")
+    
+    val list = dir.listFiles.foldLeft(""){(a,i) =>
+      a + f"""|      <li>
+              |        <a href="${i.getName}${if (i.isFile) "" else "/"}">
+              |          ${i.getName}${if (i.isFile) "" else "/"}
+              |        </a>
+              |      </li>\n""".stripMargin
+    }
+    val html = f"""|<!DOCTYPE html>
+                   |<html>
+                   |  <head>
+                   |    <meta charset="UTF-8">
+                   |    <title>Contents of ${rpath}</title>
+                   |  </head>
+                   |  <body>
+                   |    <h1>Contents of ${rpath}</h1>
+                   |    <ul>
+                   |${list}
+                   |    </ul>
+                   |    <p><em>Page generated by ${serverName}</em></p>
+                   |  </body>
+                   |</html>\n""".stripMargin
+    
+    c.send(ResponseBody(
+        Body("text/html", html.getBytes("UTF-8"))))
   }
 }

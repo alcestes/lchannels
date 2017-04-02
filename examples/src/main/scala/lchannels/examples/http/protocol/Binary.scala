@@ -73,6 +73,7 @@ import java.net.Socket
 import java.io.{
   BufferedReader, BufferedWriter, InputStreamReader, OutputStreamWriter
 }
+import java.time.format.DateTimeFormatter.{RFC_1123_DATE_TIME => RFCDate}
 
 /** Socket manager for the HTTP protocol.
  *  
@@ -90,10 +91,19 @@ class HttpServerSocketManager(socket: Socket,
   
   override def streamer(x: Any) = x match {
     case HttpVersion(v) => outb.write(f"${v} ")
-    case Code404(msg) => {
-      outb.write(f"404 ${msg}${crlf}"); outb.flush()
-      close()
+    case Code200(msg) => outb.write(f"200 ${msg}${crlf}"); outb.flush()
+    case Code404(msg) => outb.write(f"404 ${msg}${crlf}"); outb.flush()
+    
+    case Date(date) => outb.write(f"Date: ${date.format(RFCDate)}${crlf}"); outb.flush()
+    case Server(server) => outb.write(f"Server: ${server}${crlf}"); outb.flush()
+    case ResponseBody(body) => {
+      outb.write(f"Content-Type: ${body.contentType}${crlf}"); outb.flush()
+      outb.write(f"Content-Length: ${body.contents.size}${crlf}${crlf}"); outb.flush()
+      out.write(body.contents) // NOTE: bypass outb, to preserve encoding
+      outb.close()
     }
+    
+    case e => { close(); throw new RuntimeException(f"BUG: unsupported message: '${e}'") }
   }
   
   private val inb = new BufferedReader(new InputStreamReader(in))
@@ -110,13 +120,17 @@ class HttpServerSocketManager(socket: Socket,
   private val genericHeaderR = """(\S+): (.+)""".r // Generic regex for unsupported headers
   
   override def destreamer(): Any = {
+    import java.net.URI
+    
     val line = inb.readLine()
     
     if (!requestStarted) {
       line match {
-        case requestR(method, path, version) => {
+        case requestR(method, uri, version) => {
           requestStarted = true;
-          return Request(RequestLine(method, path, Version(version)))(SocketIn[RequestChoice](this))
+          val path = new URI(uri).getPath
+          val v = Version(version)
+          return Request(RequestLine(method, path, v))(SocketIn[RequestChoice](this))
         }
         
         case e => { close(); throw new RuntimeException(f"Unexpected initial message: '${e}'") }

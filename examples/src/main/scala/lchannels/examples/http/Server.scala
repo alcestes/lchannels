@@ -82,19 +82,21 @@ class Worker(id: Int, socket: Socket, root: Path)
   private val thread = { val t = new Thread(this); t.start(); t }
   def join() = thread.join()
   
-  override def run() = {
+  override def run(): Unit = {
     logInfo("Started.")
     
+    // Socket manager for the HTTP connection
+    val sktmgr = new binary.HttpServerSocketManager(socket, true, logInfo)
     // Create a SocketChannel (with the correct type) from the client socket...
-    val c = SocketIn[binary.Request](
-        new binary.HttpServerSocketManager(socket, true, logInfo)
-    )
-    
+    val c = SocketIn[binary.Request](sktmgr)
     // ...and wrap it with a multiparty (in this case, binary) session object,
     // to hide continuation-passing
     val r = MPRequest(c)
     
-    val (rpath, cont) = getRequest(r)
+    val (rpath, cont) = {
+      try getRequest(r)
+      catch { case sktmgr.ConnectionClosed(msg) => logInfo(msg); return }
+    }
     
     val path = root.resolve(pslash.relativize(Paths.get(rpath)))
     logInfo(f"Resolved request path: ${path}")

@@ -84,6 +84,9 @@ import java.time.format.DateTimeFormatter.{RFC_1123_DATE_TIME => RFCDate}
 class HttpServerSocketManager(socket: Socket,
                               relaxHeaders: Boolean,
                               logger: (String) => Unit) extends SocketManager(socket) {
+  case class ConnectionClosed(msg: String) extends java.io.IOException(msg)
+  case class ProtocolError(msg: String) extends java.io.IOException(msg)
+  
   private val outb = new BufferedWriter(new OutputStreamWriter(out))
   private var requestStarted = false // Remembers whether GET/POST/... was seen
   
@@ -128,12 +131,20 @@ class HttpServerSocketManager(socket: Socket,
       line match {
         case requestR(method, uri, version) => {
           requestStarted = true;
+          val m = Method(method)
           val path = new URI(uri).getPath
           val v = Version(version)
-          return Request(RequestLine(method, path, v))(SocketIn[RequestChoice](this))
+          return Request(RequestLine(m, path, v))(SocketIn[RequestChoice](this))
         }
         
-        case e => { close(); throw new RuntimeException(f"Unexpected initial message: '${e}'") }
+        case null => {
+          close()
+          throw ConnectionClosed("Connection closed by client")
+        }
+        case e => {
+          close()
+          throw new ProtocolError(f"Unexpected initial message: '${e}'")
+        }
       }
     }
     
@@ -160,7 +171,7 @@ class HttpServerSocketManager(socket: Socket,
         RequestBody(Body("text/html", Array[Byte]()))(SocketOut[HttpVersion](this))
       }
       
-      case e => { close(); throw new RuntimeException(f"Unexpected message: '${e}'") }
+      case e => { close(); throw new ProtocolError(f"Unexpected message: '${e}'") }
     }
   }
 }

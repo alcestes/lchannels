@@ -34,7 +34,7 @@ package lchannels.examples.http.protocol.types
 
 sealed abstract class Version
 case object Http11 extends Version {
-  override def toString(): String = "HTTP/1.1"
+  override def toString() = "HTTP/1.1"
 }
 
 object Version {
@@ -45,6 +45,19 @@ object Version {
   }
 }
 
-case class RequestLine(method: String, path: String, version: Version)
+sealed abstract class Method
+case object GET extends Method {
+  override def toString() = "GET"
+}
+
+object Method {
+  /** Construct method object from a string, as found in an HTTP request. */
+  def apply(v: String) = v match {
+    case "GET" => GET
+    case _ => throw new RuntimeException(f"Unsupported method: ${v}")
+  }
+}
+
+case class RequestLine(method: Method, path: String, version: Version)
 
 case class Body(contentType: String, contents: Array[Byte])

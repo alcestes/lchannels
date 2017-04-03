@@ -100,6 +100,7 @@ class Worker(id: Int, socket: Socket, root: Path)
     
     val path = root.resolve(pslash.relativize(Paths.get(rpath)))
     logInfo(f"Resolved request path: ${path}")
+    // TODO: we should reject paths like e.g. ../../../../etc/passwd
     
     val cont2 = cont.send(HttpVersion(Http11))
     
@@ -181,10 +182,17 @@ class Worker(id: Int, socket: Socket, root: Path)
   }
   
   private def serveFile(c: MPResponseChoice, file: Path) = {
-    logInfo(f"Serving file: ${file}")
-    // TODO: for simplicity, we assume all files are UTF-8 and human-readable
+    val filename = file.getFileName().toString()
+    val contentType = {
+      if (filename.endsWith(".html")) "text/html"
+      else if (filename.endsWith(".css")) "text/css"
+      else "text/plain" // TODO: we assume content is human-readable
+    }
+    logInfo(f"Serving file: ${file} (content type: ${contentType}")
+    
+    // TODO: for simplicity, we assume all files are UTF-8
     c.send(ResponseBody(
-        Body("text/plain; charset=utf-8", java.nio.file.Files.readAllBytes(file))))
+        Body(f"${contentType}; charset=utf-8", java.nio.file.Files.readAllBytes(file))))
   }
   
   private def serveDirectory(c: MPResponseChoice, rpath: String, dir: java.io.File) = {

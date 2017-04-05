@@ -127,7 +127,7 @@ object Actor extends App {
   val cc = ci.receive
   println(f"[*] Player C connected.  Launching server thread...")
   
-  val server = new Server(ac.cont, bc.cont, cc.cont)
+  val server = new Server(ac.cont, bc.cont, cc.cont)(30.seconds)
   
   server.join()
   println(f"[*] Delaying termination to complete game delegation")

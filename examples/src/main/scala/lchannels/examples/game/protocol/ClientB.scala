@@ -32,6 +32,7 @@
  * @author Alceste Scalas <alceste.scalas@imperial.ac.uk> */
 package lchannels.examples.game.protocol.b
 
+import scala.concurrent.duration.Duration
 import lchannels._
 import lchannels.examples.game.protocol.binary
 
@@ -49,8 +50,8 @@ case class Mov2BC(p: Boolean)
 
 // Multiparty session classes
 case class MPPlayB(q: In[binary.PlayB]) {
-  def receive() = {
-    q.receive() match {
+  def receive(implicit timeout: Duration = Duration.Inf) = {
+    q.receive(timeout) match {
       case m @ binary.PlayB(p) => {
         PlayB(p)
       }
@@ -64,8 +65,8 @@ case class MPInfoBC(a: In[binary.InfoAB], c: Out[binary.InfoBC]) {
   }
 }
 case class MPInfoAB(a: In[binary.InfoAB], c: Out[binary.Mov1BCOrMov2BC]) {
-  def receive() = {
-    a.receive() match {
+  def receive(implicit timeout: Duration = Duration.Inf) = {
+    a.receive(timeout) match {
       case m @ binary.InfoAB(p) => {
         InfoAB(p, MPMov1ABOrMov2AB(m.cont, c))
       }
@@ -73,8 +74,8 @@ case class MPInfoAB(a: In[binary.InfoAB], c: Out[binary.Mov1BCOrMov2BC]) {
   }
 }
 case class MPMov1ABOrMov2AB(a: In[binary.Mov1ABOrMov2AB], c: Out[binary.Mov1BCOrMov2BC]) {
-  def receive() = {
-    a.receive() match {
+  def receive(implicit timeout: Duration = Duration.Inf) = {
+    a.receive(timeout) match {
       case m @ binary.Mov1AB(p) => {
         Mov1AB(p, MPMov1BC(m.cont, c))
       }

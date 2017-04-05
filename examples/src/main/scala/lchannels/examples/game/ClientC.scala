@@ -51,9 +51,9 @@ class Client(name: String, s: In[binary.PlayC], wait: Duration)
     val c = MPPlayC(s) // Wrap the channel in a multiparty session obj
     
     logInfo("Started.  Waiting for multiparty session...")
-    val game = c.receive().p
+    val game = c.receive.p
     logInfo("...done.  Waiting for B's info...")
-    val info = game.receive()
+    val info = game.receive
     logInfo(f"...got InfoBC(${info.p}): sending to A, and starting game loop.")
     val info2 = info.cont.send(InfoCA(f"${info.p}, ${name}"))
     loop(info2)
@@ -64,7 +64,7 @@ class Client(name: String, s: In[binary.PlayC], wait: Duration)
     logInfo(f"Delay: ${wait}")
     Thread.sleep(wait.toMillis)
     logInfo("Waiting for B's move...")
-    g.receive() match {
+    g.receive match {
       case Mov1BC(p, cont) => {
         logInfo(f"Got Mov1BC(${p}), sending Mov1CA(${p}) and looping")
         val g2 = cont.send(Mov1CA(p))
@@ -105,7 +105,7 @@ object Actor extends App {
   val c: Out[Connect] = ActorOut[Connect](serverPath)
   val c2 = c !! Connect()_
   
-  val client = new Client("Carol", c2, 1.seconds)
+  val client = new Client("Carol", c2, 1.seconds)(30.seconds)
   
   client.join()
   as.terminate()

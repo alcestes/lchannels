@@ -32,6 +32,7 @@
  * @author Alceste Scalas <alceste.scalas@imperial.ac.uk> */
 package lchannels.examples.http.protocol.server
 
+import scala.concurrent.duration.Duration
 import lchannels._
 import lchannels.examples.http.protocol.binary
 import lchannels.examples.http.protocol.types._
@@ -70,8 +71,8 @@ case class Date(p: ZonedDateTime)
 
 // Multiparty session classes
 case class MPRequest(C: In[binary.Request]) {
-  def receive() = {
-    C.receive() match {
+  def receive(implicit timeout: Duration = Duration.Inf) = {
+    C.receive(timeout) match {
       case m @ binary.Request(p) => {
         Request(p, MPRequestChoice(m.cont))
       }
@@ -80,8 +81,8 @@ case class MPRequest(C: In[binary.Request]) {
 }
 
 case class MPRequestChoice(C: In[binary.RequestChoice]) {
-  def receive() = {
-    C.receive() match {
+  def receive(implicit timeout: Duration = Duration.Inf) = {
+    C.receive(timeout) match {
       case m @ binary.Accept(p) => {
         Accept(p, MPRequestChoice(m.cont))
       }

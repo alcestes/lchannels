@@ -54,7 +54,7 @@ object Server extends App {
   println(f"[*] Root directory: ${root}")
   println(f"[*] Press Ctrl+C to terminate")
   
-  implicit val timeout = 120.seconds
+  implicit val timeout = 30.seconds
   accept(1)
   
   @scala.annotation.tailrec
@@ -95,7 +95,14 @@ class Worker(id: Int, socket: Socket, root: Path)
     
     val (rpath, cont) = {
       try getRequest(r)
-      catch { case sktmgr.ConnectionClosed(msg) => logInfo(msg); return }
+      catch {
+        case sktmgr.ConnectionClosed(msg) => { logInfo(msg); return }
+        case e: java.util.concurrent.TimeoutException => {
+          logInfo(f"timeout error: ${e}")
+          sktmgr.close()
+          return
+        }
+      }
     }
     
     val path = root.resolve(pslash.relativize(Paths.get(rpath)))
@@ -125,15 +132,16 @@ class Worker(id: Int, socket: Socket, root: Path)
     logInfo("Terminating.")
   }
   
-  private def getRequest(c: MPRequest) = {
-    val req = c.receive()
+  private def getRequest(c: MPRequest)(implicit timeout: Duration) = {
+    val req = c.receive
     logInfo(f"Method: ${req.p.method}; path: ${req.p.path}; version: ${req.p.version}")
     val cont = choices(req.cont)
     (req.p.path, cont)
   }
   
   @scala.annotation.tailrec
-  private def choices(c: MPRequestChoice): MPHttpVersion = c.receive() match {
+  private def choices(c: MPRequestChoice)
+                     (implicit timeout: Duration): MPHttpVersion = c.receive match {
     case Accept(p, cont)  => {
       logInfo(f"Client accepts: ${p}")
       choices(cont)

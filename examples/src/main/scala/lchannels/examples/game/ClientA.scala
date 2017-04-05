@@ -62,39 +62,39 @@ class Client(name: String, s: In[binary.PlayA], wait: Duration)
     
   @scala.annotation.tailrec
   private def loop(g: MPMov1ABOrMov2AB, loopn: Int): Unit = {
-	  logInfo(f"Delay: ${wait}")
-	  Thread.sleep(wait.toMillis)
-	  logInfo(f"Sending Mov1AB(${loopn}) to B, and waiting C's move")
-	  g.send(Mov1AB(loopn)).receive match {
-	    case Mov1CA(p, cont) => {
-		    logInfo(f"Got Mov1CA(${p}), sending Mov2AB(true)")
-  		  val g2 = cont.send(Mov2AB(true))
-		    g2.receive match {
-		      case Mov1CA(p, cont) => {
-  			    logInfo(f"Got Mov1CA(${p}), looping")
-	  		    loop(cont, loopn+1)
-		      }
-		      case Mov2CA(p, cont) => {
-			      logInfo(f"Got Mov2CA(${p}), looping")
-			      loop(cont, loopn+1)
-		      }
-		    }
-	    }
-	    case Mov2CA(p, cont) => {
-		    logInfo(f"Got Mov1CA(${p}), sending Mov1AB(${loopn+1})")
-		    val g2 = cont.send(Mov1AB(loopn+1))
-		    g2.receive match {
-		      case Mov1CA(p, cont) => {
-			      logInfo(f"Got Mov1CA(${p}), looping")
-			      loop(cont, loopn+2)
-		      }
-		      case Mov2CA(p, cont) => {
-			      logInfo(f"Got Mov2CA(${p}), looping")
-			      loop(cont, loopn+2)
-		      }
-		    }
-	    }
-	  }
+    logInfo(f"Delay: ${wait}")
+    Thread.sleep(wait.toMillis)
+    logInfo(f"Sending Mov1AB(${loopn}) to B, and waiting C's move")
+    g.send(Mov1AB(loopn)).receive match {
+      case Mov1CA(p, cont) => {
+        logInfo(f"Got Mov1CA(${p}), sending Mov2AB(true)")
+        val g2 = cont.send(Mov2AB(true))
+        g2.receive match {
+          case Mov1CA(p, cont) => {
+            logInfo(f"Got Mov1CA(${p}), looping")
+            loop(cont, loopn+1)
+          }
+          case Mov2CA(p, cont) => {
+            logInfo(f"Got Mov2CA(${p}), looping")
+            loop(cont, loopn+1)
+          }
+        }
+      }
+      case Mov2CA(p, cont) => {
+        logInfo(f"Got Mov1CA(${p}), sending Mov1AB(${loopn+1})")
+        val g2 = cont.send(Mov1AB(loopn+1))
+        g2.receive match {
+          case Mov1CA(p, cont) => {
+            logInfo(f"Got Mov1CA(${p}), looping")
+            loop(cont, loopn+2)
+          }
+          case Mov2CA(p, cont) => {
+            logInfo(f"Got Mov2CA(${p}), looping")
+            loop(cont, loopn+2)
+          }
+        }
+      }
+    }
   }
 }
 

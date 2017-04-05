@@ -111,7 +111,13 @@ protected[lchannels] class SocketIn[T](sktm: SocketManager)
   }
   
   override def receive(implicit atMost: Duration) = {
-    sktm.destreamer(atMost).asInstanceOf[T]
+    try {
+      sktm.destreamer(atMost).asInstanceOf[T]
+    } catch {
+      case e: java.net.SocketTimeoutException => {
+        throw new java.util.concurrent.TimeoutException(e.getMessage())
+      }
+    }
   }
 }
 

@@ -249,7 +249,11 @@ protected[lchannels] class ActorIn[T](bref: ActorRef[Dest[T]])
     bref ! Dest(_ref)
     if (atMost.isFinite) {
       // recvd value has type Try[T]
-      fifo.poll(atMost.length, atMost.unit).get.asInstanceOf[T]
+      val v = fifo.poll(atMost.length, atMost.unit)
+      if (v == null) {
+        throw new java.util.concurrent.TimeoutException(f"Input timed out after ${atMost}") 
+      }
+      v.get.asInstanceOf[T]
     } else {
       fifo.take().get.asInstanceOf[T] // recvd value has type T
     }

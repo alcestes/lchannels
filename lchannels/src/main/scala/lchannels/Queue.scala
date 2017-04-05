@@ -86,10 +86,15 @@ class QueueIn[+T](fifo: Fifo[Any])
     fifo.take().asInstanceOf[T]
   }
   
-  override def receive(implicit d: Duration): T = {
+  override def receive(implicit atMost: Duration): T = {
     markAsUsed()
-    if (d.isFinite) {
-      fifo.poll(d.length, d.unit).asInstanceOf[T] // recvd value has type T
+    if (atMost.isFinite) {
+      val v = fifo.poll(atMost.length, atMost.unit)
+      if (v == null) {
+        // NOTE: if a null value is received, we treat it as a timeout
+        throw new java.util.concurrent.TimeoutException(f"Input timed out after ${atMost}") 
+      }
+      v.asInstanceOf[T]
     } else {
       fifo.take().asInstanceOf[T] // recvd value has type T
     }

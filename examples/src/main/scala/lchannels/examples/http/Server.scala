@@ -69,11 +69,11 @@ object Server extends App {
 class Worker(id: Int, socket: Socket, root: Path)
             (implicit timeout: Duration)
     extends Runnable with StrictLogging {
-  private def logTrace(msg: String) = logger.trace(f"Worker [${id}]: ${msg}")
-  private def logDebug(msg: String) = logger.debug(f"Worker [${id}]: ${msg}")
-  private def logInfo(msg: String) = logger.info(f"Worker [${id}]: ${msg}")
-  private def logWarn(msg: String) = logger.warn(f"Worker [${id}]: ${msg}")
-  private def logError(msg: String) = logger.error(f"Worker [${id}]: ${msg}")
+  private def logTrace(msg: String) = logger.trace(msg)
+  private def logDebug(msg: String) = logger.debug(msg)
+  private def logInfo(msg: String) = logger.info(msg)
+  private def logWarn(msg: String) = logger.warn(msg)
+  private def logError(msg: String) = logger.error(msg)
   
   private val serverName = "lchannels HTTP server"
   private val pslash = Paths.get("/") // Used to relativize request paths
@@ -98,7 +98,7 @@ class Worker(id: Int, socket: Socket, root: Path)
       catch {
         case sktmgr.ConnectionClosed(msg) => { logInfo(msg); return }
         case e: java.util.concurrent.TimeoutException => {
-          logInfo(f"Timeout error: ${e}")
+          logInfo(f"Timeout error: ${e.getMessage}")
           sktmgr.close()
           logInfo("Terminating.")
           return

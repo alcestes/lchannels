@@ -98,8 +98,9 @@ class Worker(id: Int, socket: Socket, root: Path)
       catch {
         case sktmgr.ConnectionClosed(msg) => { logInfo(msg); return }
         case e: java.util.concurrent.TimeoutException => {
-          logInfo(f"timeout error: ${e}")
+          logInfo(f"Timeout error: ${e}")
           sktmgr.close()
+          logInfo("Terminating.")
           return
         }
       }

@@ -54,9 +54,9 @@ package object S {
   case class Bye(p: String)
   
   // Multiparty session classes
-  case class MPGreetOrQuit(C: In[binary.GreetOrQuit]) {
+  case class MPGreetOrQuit(c: In[binary.GreetOrQuit]) {
     def receive(implicit timeout: Duration = Duration.Inf) = {
-      C.receive(timeout) match {
+      c.receive(timeout) match {
         case m @ binary.Greet(p) => {
           Greet(p, MPByeOrHello(m.cont))
         }
@@ -66,13 +66,13 @@ package object S {
       }
     }
   }
-  case class MPByeOrHello(C: Out[binary.ByeOrHello]) {
+  case class MPByeOrHello(c: Out[binary.ByeOrHello]) {
     def send(v: Bye) = {
-      val cnt = C ! binary.Bye(v.p)
+      val cnt = c ! binary.Bye(v.p)
       ()
     }
     def send(v: Hello) = {
-      val cnt = C !! binary.Hello(v.p)_
+      val cnt = c !! binary.Hello(v.p)_
       MPGreetOrQuit(cnt)
     }
   }

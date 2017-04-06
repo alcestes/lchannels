@@ -70,9 +70,9 @@ case class LastModified(p: ZonedDateTime)
 case class Date(p: ZonedDateTime)
 
 // Multiparty session classes
-case class MPRequest(C: In[binary.Request]) {
+case class MPRequest(c: In[binary.Request]) {
   def receive(implicit timeout: Duration = Duration.Inf) = {
-    C.receive(timeout) match {
+    c.receive(timeout) match {
       case m @ binary.Request(p) => {
         Request(p, MPRequestChoice(m.cont))
       }
@@ -80,9 +80,9 @@ case class MPRequest(C: In[binary.Request]) {
   }
 }
 
-case class MPRequestChoice(C: In[binary.RequestChoice]) {
+case class MPRequestChoice(c: In[binary.RequestChoice]) {
   def receive(implicit timeout: Duration = Duration.Inf) = {
-    C.receive(timeout) match {
+    c.receive(timeout) match {
       case m @ binary.Accept(p) => {
         Accept(p, MPRequestChoice(m.cont))
       }
@@ -114,67 +114,67 @@ case class MPRequestChoice(C: In[binary.RequestChoice]) {
   }
 }
 
-case class MPHttpVersion(C: Out[binary.HttpVersion]) {
+case class MPHttpVersion(c: Out[binary.HttpVersion]) {
   def send(v: HttpVersion) = {
-    val cnt = C !! binary.HttpVersion(v.p)_
+    val cnt = c !! binary.HttpVersion(v.p)_
     MPCode200OrCode404(cnt)
   }
 }
 
-case class MPCode200OrCode404(C: Out[binary.Code200OrCode404]) {
+case class MPCode200OrCode404(c: Out[binary.Code200OrCode404]) {
   def send(v: Code200) = {
-    val cnt = C !! binary.Code200(v.p)_
+    val cnt = c !! binary.Code200(v.p)_
     MPResponseChoice(cnt)
   }
   def send(v: Code404) = {
-    val cnt = C !! binary.Code404(v.p)_
+    val cnt = c !! binary.Code404(v.p)_
     MPResponseChoice(cnt)
   }
 }
 
-case class MPResponseChoice(C: Out[binary.ResponseChoice]) {
+case class MPResponseChoice(c: Out[binary.ResponseChoice]) {
   def send(v: AcceptRanges) = {
-    val cnt = C !! binary.AcceptRanges(v.p)_
+    val cnt = c !! binary.AcceptRanges(v.p)_
     MPResponseChoice(cnt)
   }
   def send(v: ContentLength) = {
-    val cnt = C !! binary.ContentLength(v.p)_
+    val cnt = c !! binary.ContentLength(v.p)_
     MPResponseChoice(cnt)
   }
   def send(v: ContentType) = {
-    val cnt = C !! binary.ContentType(v.p)_
+    val cnt = c !! binary.ContentType(v.p)_
     MPResponseChoice(cnt)
   }
   def send(v: Date) = {
-    val cnt = C !! binary.Date(v.p)_
+    val cnt = c !! binary.Date(v.p)_
     MPResponseChoice(cnt)
   }
   def send(v: ETag) = {
-    val cnt = C !! binary.ETag(v.p)_
+    val cnt = c !! binary.ETag(v.p)_
     MPResponseChoice(cnt)
   }
   def send(v: LastModified) = {
-    val cnt = C !! binary.LastModified(v.p)_
+    val cnt = c !! binary.LastModified(v.p)_
     MPResponseChoice(cnt)
   }
   def send(v: ResponseBody) = {
-    val cnt = C ! binary.ResponseBody(v.p)
+    val cnt = c ! binary.ResponseBody(v.p)
     ()
   }
   def send(v: Server) = {
-    val cnt = C !! binary.Server(v.p)_
+    val cnt = c !! binary.Server(v.p)_
     MPResponseChoice(cnt)
   }
   def send(v: StrictTS) = {
-    val cnt = C !! binary.StrictTS(v.p)_
+    val cnt = c !! binary.StrictTS(v.p)_
     MPResponseChoice(cnt)
   }
   def send(v: Vary) = {
-    val cnt = C !! binary.Vary(v.p)_
+    val cnt = c !! binary.Vary(v.p)_
     MPResponseChoice(cnt)
   }
   def send(v: Via) = {
-    val cnt = C !! binary.Via(v.p)_
+    val cnt = c !! binary.Via(v.p)_
     MPResponseChoice(cnt)
   }
 }

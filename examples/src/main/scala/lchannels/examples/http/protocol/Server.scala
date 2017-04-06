@@ -37,7 +37,7 @@ import lchannels._
 import lchannels.examples.http.protocol.binary
 import lchannels.examples.http.protocol.types._
 
-import java.time.ZonedDateTime;
+import java.time.ZonedDateTime
 
 // Input message types for multiparty sessions
 case class Request(p: RequestLine, cont: MPRequestChoice)

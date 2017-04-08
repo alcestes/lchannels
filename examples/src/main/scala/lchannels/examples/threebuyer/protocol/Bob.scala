@@ -64,54 +64,54 @@ case class MPPlayBob(c: In[binary.PlayBob]) {
   }
 }
 
-case class MPQuoteB(Alice: In[binary.ShareA], Seller: In[binary.QuoteB]) {
+case class MPQuoteB(alice: In[binary.ShareA], seller: In[binary.QuoteB]) {
   def receive(implicit timeout: Duration = Duration.Inf) = {
-    Seller.receive(timeout) match {
+    seller.receive(timeout) match {
       case m @ binary.QuoteB(p) => {
-        QuoteB(p, MPShareA(Alice, m.cont))
+        QuoteB(p, MPShareA(alice, m.cont))
       }
     }
   }
 }
 
-case class MPShareA(Alice: In[binary.ShareA], Seller: Out[binary.OkSOrQuitS]) {
+case class MPShareA(alice: In[binary.ShareA], seller: Out[binary.OkSOrQuitS]) {
   def receive(implicit timeout: Duration = Duration.Inf) = {
-    Alice.receive(timeout) match {
+    alice.receive(timeout) match {
       case m @ binary.ShareA(p) => {
-        ShareA(p, MPOkAOrQuitA(m.cont, Seller))
+        ShareA(p, MPOkAOrQuitA(m.cont, seller))
       }
     }
   }
 }
 
-case class MPOkAOrQuitA(Alice: Out[binary.OkAOrQuitA], Seller: Out[binary.OkSOrQuitS]) {
+case class MPOkAOrQuitA(alice: Out[binary.OkAOrQuitA], seller: Out[binary.OkSOrQuitS]) {
   def send(v: OkA) = {
-    val cnt = Alice ! binary.OkA(v.p)
-    MPOkS(cnt, Seller)
+    val cnt = alice ! binary.OkA(v.p)
+    MPOkS(cnt, seller)
   }
   def send(v: QuitA) = {
-    val cnt = Alice ! binary.QuitA(v.p)
-    MPQuitS(cnt, Seller)
+    val cnt = alice ! binary.QuitA(v.p)
+    MPQuitS(cnt, seller)
   }
 }
 
-case class MPOkS(Alice: Unit, Seller: Out[binary.OkSOrQuitS]) {
+case class MPOkS(alice: Unit, seller: Out[binary.OkSOrQuitS]) {
   def send(v: OkS) = {
-    val cnt = Seller !! binary.OkS(v.p)_
-    MPAddress(Alice, cnt)
+    val cnt = seller !! binary.OkS(v.p)_
+    MPAddress(alice, cnt)
   }
 }
 
-case class MPAddress(Alice: Unit, Seller: Out[binary.Address]) {
+case class MPAddress(alice: Unit, seller: Out[binary.Address]) {
   def send(v: Address) = {
-    val cnt = Seller !! binary.Address(v.p)_
-    MPDeliver(Alice, cnt)
+    val cnt = seller !! binary.Address(v.p)_
+    MPDeliver(alice, cnt)
   }
 }
 
-case class MPDeliver(Alice: Unit, Seller: In[binary.Deliver]) {
+case class MPDeliver(alice: Unit, seller: In[binary.Deliver]) {
   def receive(implicit timeout: Duration = Duration.Inf) = {
-    Seller.receive(timeout) match {
+    seller.receive(timeout) match {
       case m @ binary.Deliver(p) => {
         Deliver(p)
       }
@@ -119,9 +119,9 @@ case class MPDeliver(Alice: Unit, Seller: In[binary.Deliver]) {
   }
 }
 
-case class MPQuitS(Alice: Unit, Seller: Out[binary.OkSOrQuitS]) {
+case class MPQuitS(alice: Unit, seller: Out[binary.OkSOrQuitS]) {
   def send(v: QuitS) = {
-    val cnt = Seller ! binary.QuitS(v.p)
+    val cnt = seller ! binary.QuitS(v.p)
     ()
   }
 }
@@ -139,23 +139,23 @@ case class Contrib(p: Int)
 case class Delegate(p: MPOkAOrQuitA)
 
 // Multiparty session classes
-case class MPContrib(Carol: Out[binary.Contrib]) {
+case class MPContrib(carol: Out[binary.Contrib]) {
   def send(v: Contrib) = {
-    val cnt = Carol !! binary.Contrib(v.p)_
+    val cnt = carol !! binary.Contrib(v.p)_
     MPDelegate(cnt)
   }
 }
 
-case class MPDelegate(Carol: Out[binary.Delegate]) {
+case class MPDelegate(carol: Out[binary.Delegate]) {
   def send(v: Delegate) = {
-    val cnt = Carol !! binary.Delegate(v.p)_
+    val cnt = carol !! binary.Delegate(v.p)_
     MPOkCOrQuitC(cnt)
   }
 }
 
-case class MPOkCOrQuitC(Carol: In[binary.OkCOrQuitC]) {
+case class MPOkCOrQuitC(carol: In[binary.OkCOrQuitC]) {
   def receive(implicit timeout: Duration = Duration.Inf) = {
-    Carol.receive(timeout) match {
+    carol.receive(timeout) match {
       case m @ binary.OkC(p) => {
         OkC(p)
       }

@@ -255,7 +255,8 @@ object ActorServer extends App {
   val (in, out) = ActorChannel.factory[Start]("start");
   println(f"[*] Greeting server listening on: ${out.path}")
   Server(in)
-  
+
+  Thread.sleep(2000) // Just to deliver pending actor messages
   as.terminate()
 }
 
@@ -281,6 +282,7 @@ object ActorClient extends App {
   println(f"[*] Connecting to ${serverPath}...")
   val c = ActorOut[Start](serverPath)
   Client1(c)
-  
+
+  Thread.sleep(2000) // Just to deliver pending actor messages
   as.terminate()
 }

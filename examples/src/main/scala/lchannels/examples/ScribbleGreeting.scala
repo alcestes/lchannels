@@ -294,6 +294,7 @@ object ActorServer extends App {
   println(f"[*] Greeting server listening on: ${out.path}")
   Server(S.MPGreetOrQuit(in))
   
+  Thread.sleep(2000) // Just to deliver pending actor messages
   as.terminate()
 }
 
@@ -320,6 +321,7 @@ object ActorClient extends App {
   println(f"[*] Connecting to ${serverPath}...")
   val c = ActorOut[binary.GreetOrQuit](serverPath)
   Client1(C.MPGreetOrQuit(c))
-  
+
+  Thread.sleep(2000) // Just to deliver pending actor messages
   as.terminate()
 }

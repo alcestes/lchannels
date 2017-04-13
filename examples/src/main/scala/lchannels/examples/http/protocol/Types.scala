@@ -24,10 +24,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-/** Multiparty protocol classes for game player A.
- *  The classes in this package have been automatically generated from the
- *  Scribble HTTP protocol definition:
- *  https://github.com/alcestes/scribble-java/blob/linear-channels/modules/linmp-scala/src/test/scrib/Http.scr
+/** Auxiliary types for the HTTP protocol server.
  *  
  * @author Alceste Scalas <alceste.scalas@imperial.ac.uk> */
 package lchannels.examples.http.protocol.types

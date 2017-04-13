@@ -27,7 +27,7 @@
 /** Binary protocol classes for the multiparty game.
  *  The classes in this package have been automatically generated from the
  *  multiparty game protocol:
- *  https://github.com/alcestes/scribble-java/blob/linear-channels/modules/linmp-scala/src/test/scrib/Game3.scr
+ *  https://github.com/alcestes/scribble-java/blob/linear-channels/modules/linmp-scala/src/test/scrib/Game.scr
  *  
  * @author Alceste Scalas <alceste.scalas@imperial.ac.uk> */
 package lchannels.examples.game.protocol.binary

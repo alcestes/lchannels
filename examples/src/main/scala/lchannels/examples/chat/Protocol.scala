@@ -30,7 +30,7 @@ import lchannels._
 
 ///////////////////////////////////////////////////////////////////////////////
 // Session type S_front:
-// ?GetSession() . (!Active(S_act).end (+) !New(S_auth).end)
+// rec X . ?GetSession() . (!Active(S_act).end (+) !New(S_auth).end) . X
 ///////////////////////////////////////////////////////////////////////////////
 case class GetSession(id: Int)(val cont:Out[GetSessionResult])
 

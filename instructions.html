@@ -153,7 +153,17 @@ sudo update-alternatives --config javac     # Ensure that Java 8 is selected
  [13] lchannels.examples.greeting.Queue
  [14] lchannels.examples.greeting.SocketClient
  [15] lchannels.examples.greeting.StreamClient
- [16] lchannels.examples.sleepingbarber.demo.Local
+ [16] lchannels.examples.http.server.Server
+ [17] lchannels.examples.scribblegreeting.ActorClient
+ [18] lchannels.examples.scribblegreeting.ActorServer
+ [19] lchannels.examples.scribblegreeting.Local
+ [20] lchannels.examples.scribblegreeting.SocketClient
+ [21] lchannels.examples.sleepingbarber.demo.Local
+ [22] lchannels.examples.threebuyer.alice.Actor
+ [23] lchannels.examples.threebuyer.bob.Actor
+ [24] lchannels.examples.threebuyer.carol.Actor
+ [25] lchannels.examples.threebuyer.demo.Local
+ [26] lchannels.examples.threebuyer.seller.Actor
 
 Enter number:
 </pre>
@@ -164,8 +174,7 @@ Enter number:
 
       <ul>
 	<li>
-	  <strong><code>lchannels.examples.calc</code></strong> (not
-	  mentioned in the technical report): a client and server that
+	  <strong><code>lchannels.examples.calc</code></strong>: a client and server that
 	  perform simple mathematical operations.
 	  <em><a href="https://github.com/alcestes/lchannels/tree/master/examples/src/main/scala/lchannels/examples/Calc.scala">(Source)</a></em>
 	</li>
@@ -182,9 +191,34 @@ Enter number:
 	  <em><a href="https://github.com/alcestes/lchannels/tree/master/examples/src/main/scala/lchannels/examples/Greeting.scala">(Source)</a></em>
 	</li>
 	<li>
+	  <strong><code>lchannels.examples.scribblegreeting</code></strong>:
+	  similar to the above, but based on session classes that have
+	  been automatically generated from
+	  <a href="https://github.com/alcestes/scribble-java/blob/linear-channels/modules/linmp-scala/src/test/scrib/Greeting.scr">this
+	  protocol specification</a>, using
+	  <a href="https://github.com/alcestes/scribble-java/tree/linear-channels">an extended version of the Scribble tool</a>.
+	  <em><a href="https://github.com/alcestes/lchannels/tree/master/examples/src/main/scala/lchannels/examples/ScribbleGreeting.scala">(Source)</a></em>
+	</li>
+	<li>
 	  <strong><code>lchannels.examples.sleepingbarber</code></strong>:
 	  the "sleeping barber" of Example 4.3.
 	  <em><a href="https://github.com/alcestes/lchannels/tree/master/examples/src/main/scala/lchannels/examples/sleepingbarber/Demo.scala">(Source)</a></em>
+	</li>
+	<li>
+	  <strong><code>lchannels.examples.http</code></strong>: HTTP
+	  server supporting the GET method.  The implementation is
+	  based on session classes that have been automatically
+	  generated from
+	  <a href="https://github.com/alcestes/scribble-java/blob/linear-channels/modules/linmp-scala/src/test/scrib/Http.scr">this
+	  protocol specification</a>, using
+	  <a href="https://github.com/alcestes/scribble-java/tree/linear-channels">an extended version of the Scribble tool</a>.
+	  <em><a href="https://github.com/alcestes/lchannels/tree/master/examples/src/main/scala/lchannels/examples/http">(Source)</a></em>
+	</li>
+	<li>
+	  <strong><code>lchannels.examples.sleepingbarber</code></strong>:
+	  the "sleeping barber" of Example 4.3.
+	  <em><a href="https://github.com/alcestes/lchannels/tree/master/examples/src/main/scala/lchannels/examples/sleepingbarber/Demo.scala">(Source)</a></em>
+	</li>
 	</li>
 	<li>
 	  <strong><code>lchannels.examples.game</code></strong>:
@@ -205,7 +239,20 @@ Enter number:
 	  <a href="https://github.com/alcestes/scribble-java/blob/linear-channels/modules/linmp-scala/src/test/scrib/Game.scr">this
 	  protocol specification</a>, using
 	  <a href="https://github.com/alcestes/scribble-java/tree/linear-channels">an extended version of the Scribble tool</a>.
-	  
+	</li>
+	<li>
+	  <strong><code>lchannels.examples.threebuyer</code></strong>:
+	  two buyers connect to a seller to purchase a book, involving
+	  a third buyer if the price is too high.
+	  <em><a href="https://github.com/alcestes/lchannels/tree/master/examples/src/main/scala/lchannels/examples/threebuyer/Demo.scala">(Source)</a></em>
+	  This example is also based on the
+	  theoretical results presented in
+	  <a href="https://www.doc.ic.ac.uk/~ascalas/mpst-linear/">this
+	    technical report</a>.  The protocol classes
+	  are automatically generated from
+	  <a href="https://github.com/alcestes/scribble-java/blob/linear-channels/modules/linmp-scala/src/test/scrib/ThreeBuyer.scr">this
+	  protocol specification</a>, using
+	  <a href="https://github.com/alcestes/scribble-java/tree/linear-channels">an extended version of the Scribble tool</a>.
 	</li>
       </ul>
       
@@ -257,6 +304,10 @@ Enter number:
 	  </ol>
 	</li>
 	<li>
+	  <strong><code>lchannels.examples.scribblegreeting.ActorClient</code></strong>/<strong><code>.ActorServer</code></strong>:
+	  similar to the previous case.
+	</li>
+	<li>
 	  <strong><code>lchannels.examples.game.(a / b / c / server).Actor</code></strong>
 	  is the 3-player game using actor-based channels.
 	  The <code>server</code> and the three
@@ -272,7 +323,7 @@ Enter number:
 	    </li>
 	    <li>
 	      <em>then</em>, while the server is running,
-	      on <em>3 other terminals</em> you should execute again:
+	      on <em>three other terminals</em> you should execute again:
 
 	      <pre><code>sbt "project examples" run
 </code></pre>
@@ -285,6 +336,31 @@ Enter number:
 	      <em>becomes independent from the server</em>,
 	      and when the server JVM terminates, the ongoing game
 	      is not disturbed.
+	    </li>
+	  </ol>
+	</li>
+	<li>
+	  <strong><code>lchannels.examples.threebuyer.(alice / bob / carol / seller).Actor</code></strong>
+	  is the three-buyer example using actor-based channels.
+	  Similarly to the previous example, the <code>seller</code>
+	  and the three buyers
+	  <code>alice</code>,<code>bob</code>,<code>carol</code> can be
+	  launched <em>on different JVMs</em>, and in this case,
+	  a <em>distributed multiparty session delegation</em>
+	  will occur transparently (depending on Alice's choices).
+	  If you want to try it, you need to:
+	   <ol>
+	    <li>
+	      <em>first</em>, launch the <code>seller</code> and
+	      <code>carol</code>, on two separate terminals, by
+	      selecting <code>lchannels.examples.threebuyer.seller.Actor</code>
+	      and <code>lchannels.examples.threebuyer.carol.Actor</code>
+	      from the prompt above;
+	    </li>
+	    <li>
+	      <em>then</em>, while both are running,
+	      on two other terminals you should
+	      select <code>lchannels.examples.game.(alice / bob).Actor</code>.
 	    </li>
 	  </ol>
 	</li>
@@ -310,6 +386,10 @@ Enter number:
           use <code>lchannels</code>, and can be written
           in <em>any</em> language (we used Python).
 	</li>
+	<li>
+	  <strong><code>lchannels.examples.scribblegreeting.SocketClient</code></strong></strong>:
+	  similar to the previous case.
+	  
       </ul>
 
       <h3>Browsing the source code</h3>

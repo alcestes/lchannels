@@ -55,16 +55,19 @@ object Demo {
     val (ca, sa) = afactory()
     val (cb, sb) = bfactory()
     
-     // Channel between Bob and Carol (NOTE: it might not be used)
-    val (bci, bco) = cfactory()
-    
     // Promise/future pair used to "connect" Bob and Carol
     val bcp = Promise[In[Contrib]]
     val bcf = bcp.future
-    // Here, Bob's connector (used by Carol) will not return
-    // until Carol's connector (used by Bob) is invoked
+
+    // Here, the connector to Bob (used by Carol) will not return
+    // until the connector to Carol (used by Bob) is invoked
     // (but this will only happen if Bob actually decides to involve Carol)
-    def carolConnector(_logger: String => Unit) = { bcp.success(bci); bco }
+    def carolConnector(_logger: String => Unit) = {
+      val (bci, bco) = cfactory() // Channel between Bob and Carol
+
+      bcp.success(bci) // Complete the Promise with one channel endpoint...
+      bco // ...and return the other endpoint
+    }
     def bobConnector() = Await.result(bcf, duration.Duration.Inf)
     
     val seller = new Seller(sa, sb)

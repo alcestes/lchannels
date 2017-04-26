@@ -197,7 +197,7 @@ class Worker(id: Int, socket: Socket, root: Path)
       else if (filename.endsWith(".css")) "text/css"
       else "text/plain" // TODO: we assume content is human-readable
     }
-    logInfo(f"Serving file: ${file} (content type: ${contentType}")
+    logInfo(f"Serving file: ${file} (content type: ${contentType})")
     
     // TODO: for simplicity, we assume all files are UTF-8
     c.send(ResponseBody(

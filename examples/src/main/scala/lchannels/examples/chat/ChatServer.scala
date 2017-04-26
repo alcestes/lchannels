@@ -78,14 +78,14 @@ object ChatServer {
   }
   
   def apply()(implicit ec: ExecutionContext, timeout: Duration): Frontend = {
-    apply(LocalChannel.factory,
-          LocalChannel.factory,
-          LocalChannel.factory,
-          LocalChannel.factory,
-          LocalChannel.factory,
-          LocalChannel.factory,
-          LocalChannel.factory,
-          LocalChannel.factory)
+    apply(() => LocalChannel.factory(),
+          () => LocalChannel.factory(),
+          () => LocalChannel.factory(),
+          () => LocalChannel.factory(),
+          () => LocalChannel.factory(),
+          () => LocalChannel.factory(),
+          () => LocalChannel.factory(),
+          () => LocalChannel.factory())
   }
 }
 
@@ -197,7 +197,7 @@ class ChatServer(frontend: In[IntGetSession],
               yield recoverSession(id)
           }
           assert(cleanedChans.size <= 1) // At most 1 session should be recovered
-          if (cleanedChans == 1) {
+          if (cleanedChans.size == 1) {
             // Some session was cleaned and replaced, let's use the channel
             res = IntNewSession(cleanedChans.iterator.next())_
           } else {

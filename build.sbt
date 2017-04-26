@@ -6,8 +6,8 @@ Keys.`package` := {
 }
 
 lazy val commonSettings = Seq(
-  version := "0.0.2",
-  scalaVersion := "2.11.8",
+  version := "0.0.3",
+  scalaVersion := "2.12.2",
   scalacOptions ++= Seq(
     "-target:jvm-1.8", "-unchecked", "-deprecation", "-feature", "-Ywarn-unused-import"
   ),
@@ -24,8 +24,8 @@ lazy val lchannels = (project in file("lchannels")).
     name := "lchannels",
 
     libraryDependencies ++= Seq(
-      "com.typesafe.akka" %% "akka-typed-experimental" % "2.4.2",
-      "com.typesafe.akka" %% "akka-remote" % "2.4.2"
+      "com.typesafe.akka" %% "akka-typed" % "2.5.0",
+      "com.typesafe.akka" %% "akka-remote" % "2.5.0"
     )
   )
 
@@ -36,8 +36,8 @@ lazy val examples = (project in file("examples")).
     name := "lchannels-examples",
 
     libraryDependencies ++= Seq(
-      "org.slf4j" % "slf4j-simple" % "1.7.16",
-      "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0"
+      "org.slf4j" % "slf4j-simple" % "1.7.25",
+      "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0"
     )
   )
 

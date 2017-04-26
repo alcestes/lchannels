@@ -27,8 +27,9 @@
 package lchannels.benchmarks.ring
 
 import lchannels._
-import scala.concurrent.{blocking, Promise, Future}
+import scala.concurrent.{Await, blocking, Promise, Future}
 import scala.concurrent.duration.Duration
+import scala.collection.mutable.{Buffer => MBuffer}
 
 /** lchannels-based implementation (medium-independent) */
 object LChannelsImpl {
@@ -98,8 +99,6 @@ object LChannelsImpl {
 
 /** Promise/Future-based implementation */
 object PromiseFutureImpl {
-  import scala.concurrent.Await
-
   sealed abstract class Command
   case class Fwd(msg: String, cont: Future[Command])
     extends Command
@@ -316,8 +315,9 @@ object JavaBlockingQueuesImpl {
 
 /** Akka Typed implementation, optimized with actor reusage. */
 object AkkaTypedImpl {
-  import akka.typed.{Behavior, ActorRef, Props}
+  import akka.typed.{ActorRef, Behavior}
   import akka.typed.ScalaDSL.{Same, Stopped, Total}
+  import akka.typed.adapter.ActorSystemOps
   
   sealed abstract class Command
   case class Fwd(msg: String) extends Command
@@ -350,27 +350,20 @@ object AkkaTypedImpl {
   def benchmark(msg: String, exchanges: Int, ringSize: Int,
                 maxDuration: Duration)
                (implicit as: akka.actor.ActorSystem) = {
-    import akka.typed.Ops
-    import scala.concurrent.Await
-    import scala.concurrent.duration._
-    import scala.collection.mutable.{Buffer => MBuffer}
     
-    // implicit val timeout = 10.seconds
     implicit val timeout = Duration.Inf
     
     val endTS = Promise[Long]
     val fwdToP = Promise[ActorRef[Command]]
     
-    val masterRef =  Ops.ActorSystemOps(as).spawn(
-        Props(masterBeh(fwdToP.future, exchanges, endTS))
-    )
+    val masterRef =  ActorSystemOps(as).spawnAnonymous(
+      masterBeh(fwdToP.future, exchanges, endTS))
     
     val forwarderRefs = MBuffer[ActorRef[Command]](masterRef)
     
     for (j <- 1 until ringSize) {
-      val r = Ops.ActorSystemOps(as).spawn(
-        Props(forwarderBeh(forwarderRefs(j-1)))
-      )
+      val r = ActorSystemOps(as).spawnAnonymous(
+        forwarderBeh(forwarderRefs(j-1)))
       forwarderRefs += r
     }
     
@@ -385,7 +378,6 @@ object AkkaTypedImpl {
 
 object Benchmark {
   import benchmarks.{BenchmarkResult, BenchmarkResults}
-  import scala.concurrent.Await
   import scala.concurrent.ExecutionContext.Implicits.global
   import scala.concurrent.duration._
   
@@ -421,7 +413,7 @@ object Benchmark {
     
     val benchmarks = List(
       Bench("lchannels (Promise/Future)",
-            () => lBenchmark(which, LocalChannel.factory,
+            () => lBenchmark(which, () => LocalChannel.factory(),
                              msg, loops, ringSize, maxWait),
             MBuffer()),
       Bench("Promise/Future",
@@ -436,7 +428,7 @@ object Benchmark {
                               maxWait),
             MBuffer()),
       Bench("lchannels (queues)",
-            () => lBenchmark(which, QueueChannel.factory,
+            () => lBenchmark(which, () => QueueChannel.factory(),
                              msg, loops, ringSize, maxWait),
             MBuffer()),
       Bench("LinkedTransferQueues",
@@ -445,7 +437,7 @@ object Benchmark {
                               maxWait),
             MBuffer()),
       Bench("lchannels (actors)",
-            () => lBenchmark(which, ActorChannel.factory,
+            () => lBenchmark(which, () => ActorChannel.factory(),
                              msg, loops, ringSize, maxWait),
             MBuffer())
       )
@@ -465,7 +457,8 @@ object Benchmark {
     }
     println(" (Done)")
     
-    // Shut down the actor system
+    // Cleanup and hut down the actor system
+    ActorChannel.cleanup()
     as.terminate()
     
     for (b <- benchmarks) yield BenchmarkResult(b.title, b.results.iterator)

@@ -27,24 +27,32 @@
 package lchannels
 
 import scala.annotation.meta.field
-import scala.concurrent.{blocking, ExecutionContext, Future}
+import scala.concurrent.{Await, blocking, ExecutionContext, Future}
 import scala.concurrent.duration.{Duration, FiniteDuration}
 import scala.util.{Try, Success}
 
-import java.util.concurrent.{LinkedTransferQueue => Fifo}
+import java.util.concurrent.{TimeoutException, TimeUnit}
 
-import akka.typed.{ActorRef, Props}
-import akka.typed.ScalaDSL.{Stopped, Partial, Total}
+import akka.actor.{ActorPath, ActorRef, ActorSystem}
 
 /** The medium of actor-based channels. */
 case class Actor()
 
+/* Type used by dispatcher behaviors, to receive their destination actor and
+ * the actual transmitted value (in any order).
+ */
+private sealed abstract class ValueOrDest[T]
+private case class Value[T](v: Try[T]) extends ValueOrDest[T]
+private case class Dispatch[T]() extends ValueOrDest[T]
+
 protected[lchannels] object Defaults {
   import java.util.concurrent.atomic.AtomicReference
-  import akka.actor.ActorSystem
+  import java.util.concurrent.LinkedTransferQueue
+  import akka.actor.{ActorSystem, Props}
   
   private val exCtx = new AtomicReference[ExecutionContext]()
-  private val actorSys = new AtomicReference[akka.actor.ActorSystem]()
+  private val actorSys = new AtomicReference[ActorSystem]()
+  private val dispatchers = new LinkedTransferQueue[ActorRef]()
   
   def setExCtx(ec: ExecutionContext): Unit = exCtx.set(ec)
   
@@ -87,6 +95,60 @@ protected[lchannels] object Defaults {
       as
     }
   }
+  
+  class Dispatcher(stayAlive: Boolean) extends akka.actor.Actor {
+    private var recvdValue: Option[Try[Any]] = None
+    private var recvdDest: Option[ActorRef] = None
+    
+    override def receive = {
+      case Value(v) => recvdDest match {
+        case Some(ref) => {
+          ref ! v
+          if (!stayAlive) {
+            self ! akka.actor.PoisonPill
+          } else {
+            // We can be reused
+            recvdDest = None
+            dispatchers.put(self)
+          }
+        }
+        case None => recvdValue = Some(v) // We should reiceve dest later
+      }
+      case Dispatch() => recvdValue match {
+        case Some(v) => {
+          sender ! v
+          if (!stayAlive) {
+            self ! akka.actor.PoisonPill
+          } else {
+             // We can be reused
+            recvdValue = None
+            dispatchers.put(self)
+          }
+        }
+        case None => recvdDest = Some(sender) // We should receive the value later
+      }
+    }
+  }
+  
+  def getDispatcher(as: ActorSystem, name: Option[String]): ActorRef = dispatchers.poll match {
+    case ref: ActorRef => ref // We can reuse a dispatcher
+    case null => {
+      // No dispatcher is available: let's create a new one
+      // TODO: allow to limit queue size and/or the number of live dispatchers
+      // Note that if the dispatcher is given a name, it will NOT stay alive
+      name match {
+        case None => as.actorOf(Props(new Dispatcher(true)))
+        case Some(name) => as.actorOf(Props(new Dispatcher(false)), name)
+      }
+    }
+  }
+  
+  def killDispatchers() = {
+    // FIXME: we also need to avoid rescheduling running dispatchers!
+    while (!dispatchers.isEmpty()) {
+      dispatchers.take() ! akka.actor.PoisonPill
+    }
+  }
 }
 
 /** Channels that implement message delivery by automatically spawning
@@ -113,7 +175,7 @@ object ActorChannel {
    * 
    * This default must be provided before using `ActorChannel`s over a network.
    */
-  def setDefaultAS(as: akka.actor.ActorSystem) = Defaults.setActorSys(as)
+  def setDefaultAS(as: ActorSystem) = Defaults.setActorSys(as)
   
   /** Set the default execution context for actor-based channels,
    *  if it was not already set.
@@ -122,8 +184,19 @@ object ActorChannel {
    * 
    * @return `true` if the default is updated, `false` if it was already set
    */
-  def setDefaultASIfUnset(as: akka.actor.ActorSystem): Boolean = {
+  def setDefaultASIfUnset(as: ActorSystem): Boolean = {
     Defaults.setActorSysIfUnset(as)
+  }
+  
+  /** Release the resources used by actor-based channels, resetting the
+   *  default `ExecutionContext` and `ActorSystem`.
+   *  
+   *  Invoke this method before shutting down a previously used `ActorSystem`.
+   */
+  def cleanup() = {
+    setDefaultEC(null)
+    setDefaultAS(null)
+    Defaults.killDispatchers()
   }
   
   /** Create a pair of actor-based I/O channel endpoints.
@@ -132,14 +205,13 @@ object ActorChannel {
    *  @param as Actor context for internal actor management
    */
   def factory[T]()(implicit ec: ExecutionContext,
-                            as: akka.actor.ActorSystem): (ActorIn[T],
-                                                          ActorOut[T]) = {
-    import akka.typed.Ops
-    val bref = Ops.ActorSystemOps(as).spawn(
-      Props(behaviors.bridgeBeh[T]))
+                            as: ActorSystem): (ActorIn[T], ActorOut[T]) = {
+    val dec = Defaults.getExCtx(ec)
+    val das = Defaults.getActorSys(as)
+    val dref = Defaults.getDispatcher(das, None)
     
-    (new ActorIn[T](bref), new ActorOut[T](bref)(Defaults.getExCtx(ec),
-                                                 Defaults.getActorSys(as)))
+    (ActorIn[T](dref)(dec, das),
+     ActorOut[T](dref)(dec, das))
   }
   
   /** Create a pair of actor-based I/O channel endpoints, with a specific name.
@@ -157,14 +229,14 @@ object ActorChannel {
    */
   def factory[T](name: String)
                 (implicit ec: ExecutionContext,
-                          as: akka.actor.ActorSystem): (ActorIn[T],
-                                                        ActorOut[T]) = {
-    import akka.typed.Ops
-    val bref = Ops.ActorSystemOps(as).spawn(
-      Props(behaviors.bridgeBeh[T]), name)
+                          as: ActorSystem): (ActorIn[T], ActorOut[T]) = {
+    assert(name != "")
+    val dec = Defaults.getExCtx(ec)
+    val das = Defaults.getActorSys(as)
+    val dref = Defaults.getDispatcher(das, Some(name))
     
-    (new ActorIn[T](bref), new ActorOut[T](bref)(Defaults.getExCtx(ec),
-                                                 Defaults.getActorSys(as)))
+    (ActorIn[T](dref)(dec, das),
+     ActorOut[T](dref)(dec, das))
   }
   
   /** Spawn two functions as threads communicating via a pair of actor-based
@@ -184,33 +256,12 @@ object ActorChannel {
   def parallel[T, R1, R2](p1: ActorIn[T] => R1,
                           p2: ActorOut[T] => R2)
                          (implicit ec: ExecutionContext,
-                                   as: akka.actor.ActorSystem): (Future[R1],
+                                   as: ActorSystem): (Future[R1],
                                                                  Future[R2]) ={
     val (in, out) = factory[T]()
     ( Future { blocking { p1(in) } }, Future { blocking { p2(out) } } )
   }
 }
-
-package object behaviors {
-  protected[lchannels] def bridgeBeh[T] = Total[ValueOrDest[T]] {
-    case Value(v) => Partial {
-      case Dest(ref) => {
-        ref ! v
-        Stopped
-      }
-    }
-    case Dest(ref) => Partial {
-      case Value(v) => {
-        ref ! v
-        Stopped
-      }
-    }
-  }
-}
-
-private sealed abstract class ValueOrDest[T]
-private case class Value[T](v: Try[T]) extends ValueOrDest[T]
-private case class Dest[T](ref: ActorRef[Try[T]]) extends ValueOrDest[T]
 
 /** Actor-based input channel endpoint,
  *  usually created through the [[[ActorIn$.apply* companion object]]]
@@ -218,8 +269,9 @@ private case class Dest[T](ref: ActorRef[Try[T]]) extends ValueOrDest[T]
  */
 // FIXME: with some fiddling, we should make ActorIn covariant on T
 @SerialVersionUID(1L)
-protected[lchannels] class ActorIn[T](bref: ActorRef[Dest[T]])
-                                     (@(transient @field) implicit val as: akka.actor.ActorSystem)
+protected[lchannels] class ActorIn[T](dref: ActorRef  )
+                                     (@(transient @field) implicit val ec: ExecutionContext,
+                                      @(transient @field) implicit val as: ActorSystem)
     extends medium.In[Actor, T] with Serializable {
   // We have to reimplement usage flags in a serializable way
   private var used = false
@@ -235,50 +287,44 @@ protected[lchannels] class ActorIn[T](bref: ActorRef[Dest[T]])
    *  The path allows to (remotely) proxy the channel endpoint,
    *  via [[ActorIn	$.apply]].
    */
-  def path: akka.actor.ActorPath = bref.path
+  def path: ActorPath = dref.path
   
-  @transient
-  private var _ref: ActorRef[Try[T]] = null
-
   override def receive(implicit atMost: Duration) = {
+    import akka.pattern.ask
+    
     _markAsUsed()
-    // FIXME: can be definitely optimised
-    import akka.typed.Ops
-    val (fifo, hT) = buildPFBeh
-    _ref = Ops.ActorSystemOps(Defaults.getActorSys(as)).spawn(Props(hT))
-    bref ! Dest(_ref)
-    if (atMost.isFinite) {
-      // recvd value has type Try[T]
-      val v = fifo.poll(atMost.length, atMost.unit)
-      if (v == null) {
-        throw new java.util.concurrent.TimeoutException(f"Input timed out after ${atMost}") 
-      }
-      v.get.asInstanceOf[T]
+    // FIXME: the following can/should be optimised
+    
+    implicit val timeout = if (atMost.isFinite) {
+      akka.util.Timeout(atMost.length, atMost.unit)
     } else {
-      fifo.take().get.asInstanceOf[T] // recvd value has type T
+      // FIXME: the following timeout is not infinite, but is the maximum
+      // (at least on Scala 2.12.2 and Akka 2.5.0)
+      akka.util.Timeout(21474834, TimeUnit.SECONDS)
+    }
+    val fv = dref ? Dispatch()
+    
+    try {
+      // recvd value has type Try[T]
+      val v = Await.result(fv, atMost).asInstanceOf[Try[T]]
+      v.get
+    } catch {
+      case e: TimeoutException => {
+        throw new TimeoutException(f"Input timed out after ${atMost} (inner exception: ${e.getMessage})")
+      }
     }
   }
 
-  private def buildPFBeh: (Fifo[Try[T]], Total[Try[T]]) = {
-    val fifo = new Fifo[Try[T]]()
-    val hT = Total[Try[T]]( v => { fifo.put(v); Stopped } )
-    (fifo, hT)
-  }
-
   override def toString() = {
-    f"ActorIn@${hashCode} ← ${if (_ref != null) _ref.path else null} (bridge: ${bref.path})"
+    f"ActorIn@${hashCode} (dispatcher: ${dref.path})"
   }
 }
 
 /** Actor-based input channel endpoint. */
 object ActorIn {
-  private[lchannels] def apply[T](ref: ActorRef[Dest[T]])
-                                 (implicit as: akka.actor.ActorSystem): ActorIn[T] = {
-    new ActorIn(ref)
-  }
-  private[lchannels] def apply[T](ref: akka.actor.ActorRef)
-                                 (implicit as: akka.actor.ActorSystem): ActorIn[T] = {
-    apply(ActorRef[Dest[T]](ref))
+  private[lchannels] def apply[T](dref: ActorRef)
+                                 (implicit ec: ExecutionContext, as: ActorSystem): ActorIn[T] = {
+    new ActorIn(dref)(ec, as)
   }
   /** Proxy an [[ActorIn]] instance reachable through the given Akka actor path
    *  
@@ -287,11 +333,11 @@ object ActorIn {
    *  @param as Actor system for internal actor handling
    *  @param timeout Max wait time for path resolution
    */
-  def apply[T](path: akka.actor.ActorPath)
+  def apply[T](path: ActorPath)
               (implicit ec: ExecutionContext,
-                        as: akka.actor.ActorSystem,
+                        as: ActorSystem,
                         timeout: FiniteDuration): ActorIn[T] = {
-    apply(resolvePath(path, timeout))
+    apply(ActorIn.resolvePath(path, timeout))
   }
   
   /** Proxy an [[ActorIn]] instance reachable through the given Akka actor path
@@ -304,15 +350,15 @@ object ActorIn {
    */
   def apply[T](path: String)
               (implicit ec: ExecutionContext,
-                        as: akka.actor.ActorSystem,
+                        as: ActorSystem,
                         timeout: FiniteDuration): ActorIn[T] = {
     apply(akka.actor.ActorPaths.fromString(path))
   }
 
-  private[lchannels] def resolvePath(path: akka.actor.ActorPath,
+  private[lchannels] def resolvePath(path: ActorPath,
                                      timeout: FiniteDuration)
                                     (implicit ec: ExecutionContext,
-                                              as: akka.actor.ActorSystem): akka.actor.ActorRef = {
+                                              as: ActorSystem): ActorRef = {
     import akka.actor.{ActorIdentity, Identify}
     import akka.pattern.ask
     import scala.concurrent.Await
@@ -321,7 +367,7 @@ object ActorIn {
       as.actorSelection(path).resolveOne(timeout), timeout)
     val ref = for {
       ans  <- ask(sel, Identify(1))(timeout).mapTo[ActorIdentity]
-    } yield ans.getRef
+    } yield ans.getActorRef.get // TODO: fail fast or propagate option?
 
     Await.result(ref, timeout)
   }
@@ -332,9 +378,9 @@ object ActorIn {
  *  or via [[ActorChannel.factory]].
  */
 @SerialVersionUID(1L)
-protected[lchannels] class ActorOut[-T](bref: ActorRef[Value[T]])
+protected[lchannels] class ActorOut[-T](val dref: ActorRef)
                                        (implicit @(transient @field) val ec: ExecutionContext,
-                                                 @(transient @field) val as: akka.actor.ActorSystem)
+                                                 @(transient @field) val as: ActorSystem)
     extends medium.Out[Actor, T] with Serializable {
   // We have to reimplement usage flags in a serializable way
   private var used = false
@@ -350,11 +396,11 @@ protected[lchannels] class ActorOut[-T](bref: ActorRef[Value[T]])
    *  The path allows to (remotely) proxy the channel endpoint,
    *  via [[ActorOut$.apply]].
    */
-  def path: akka.actor.ActorPath = bref.path
+  def path: ActorPath = dref.path
   
   override def send(v: T) = synchronized {
     _markAsUsed()
-    bref ! Value(Success(v))
+    dref ! Value(Success(v))
   }
 
   override def create[U](): (ActorIn[U], ActorOut[U]) = {
@@ -362,21 +408,16 @@ protected[lchannels] class ActorOut[-T](bref: ActorRef[Value[T]])
   }
   
   override def toString() = {
-    f"ActorOut@${hashCode} → ${bref.path}"
+    f"ActorOut@${hashCode} → ${dref.path}"
   }
 }
 
 /** Actor-based output channel endpoint. */
 object ActorOut {
-  private[lchannels] def apply[T](ref: ActorRef[Value[T]])
+  private[lchannels] def apply[T](dref: ActorRef)
                                  (implicit ec: ExecutionContext,
-                                           as: akka.actor.ActorSystem): ActorOut[T] = {
-    new ActorOut(ref)
-  }
-  private[lchannels] def apply[T](ref: akka.actor.ActorRef)
-                                 (implicit ec: ExecutionContext,
-                                           as: akka.actor.ActorSystem): ActorOut[T] = {
-    apply(ActorRef[Value[T]](ref))
+                                           as: ActorSystem): ActorOut[T] = {
+    new ActorOut(dref)(ec, as)
   }
   
   /** Proxy an [[ActorOut]] instance reachable through the given Akka actor path
@@ -386,9 +427,9 @@ object ActorOut {
    *  @param as Actor system for internal actor handling
    *  @param timeout Max wait time for path resolution
    */
-  def apply[T](path: akka.actor.ActorPath)
+  def apply[T](path: ActorPath)
               (implicit ec: ExecutionContext,
-                        as: akka.actor.ActorSystem,
+                        as: ActorSystem,
                         timeout: FiniteDuration): ActorOut[T] = {
     apply(ActorIn.resolvePath(path, timeout))
   }
@@ -402,7 +443,7 @@ object ActorOut {
    */
   def apply[T](path: String)
               (implicit ec: ExecutionContext,
-                        as: akka.actor.ActorSystem,
+                        as: ActorSystem,
                         timeout: FiniteDuration): ActorOut[T] = {
     apply(akka.actor.ActorPaths.fromString(path))
   }

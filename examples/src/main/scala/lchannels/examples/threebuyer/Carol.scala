@@ -112,13 +112,13 @@ object Actor extends App {
   val (bi, bo) = ActorChannel.factory[binary.actor.ConnectCarol]("bob");
   println(f"[*] Waiting Bob's connections on: ${bo.path}")
   
-  def connector() = {
+  def connector = {
     val conn = bi.receive
     println(f"[*] Bob connected")
     conn.cont
   }
   
-  val alice = new Carol(connector)(30.seconds)
+  val alice = new Carol(() => connector)(30.seconds)
   
   alice.join()
   Thread.sleep(2000) // Just to deliver pending actor messages

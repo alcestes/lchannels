@@ -133,5 +133,7 @@ object Actor extends App {
   println(f"[*] Delaying termination to complete game delegation")
   Thread.sleep(10000)
   println(f"[*] Quitting")
+  // Cleanup and hut down the actor system
+  ActorChannel.cleanup()
   as.terminate()
 }

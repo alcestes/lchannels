@@ -79,7 +79,7 @@ object Protocol {
         handler: (In[Local, Msg], Duration) => Unit
       )(implicit ctx: ExecutionContext,
                  timeout: Duration): Out[Local, Msg] = {
-    serve(LocalChannel.factory[Msg], handler)
+    serve(() => LocalChannel.factory[Msg](), handler)
   }
   
   def serve[M, Msg <: Message[M, Send]](
@@ -96,7 +96,7 @@ object Protocol {
         handler: (Out[Local, Msg], Duration) => Unit
       )(implicit ctx: ExecutionContext,
                  timeout: Duration): In[Local, Msg] = {
-    serve(LocalChannel.factory[Msg], handler)
+    serve(() => LocalChannel.factory[Msg](), handler)
   }
   def serve[M, Msg <: Message[M, Receive]](
         factory: () => (In[M, Msg], Out[M, Msg]),

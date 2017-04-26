@@ -27,7 +27,7 @@
 package lchannels.benchmarks.pingpong
 
 import lchannels._
-import scala.concurrent.{blocking, Promise, Future}
+import scala.concurrent.{Await, blocking, Promise, Future}
 import scala.concurrent.duration.Duration
 
 /** lchannels-based implementation (medium-independent). */
@@ -181,12 +181,11 @@ object JavaBlockingQueuesImpl {
 
 /** Akka Typed implementation, optimized with actor reusage. */
 object AkkaTypedImpl {
-  import akka.typed.{
-    Behavior, ActorRef, Props
-  }
+  import akka.typed.{ActorRef, Behavior}
   import akka.typed.ScalaDSL.{
     ContextAware, Same, Stopped, Total
   }
+  import akka.typed.adapter.ActorSystemOps
   
   sealed abstract class Request
   case class Ping(msg: String, replyTo: ActorRef[Pong]) extends Request
@@ -199,7 +198,7 @@ object AkkaTypedImpl {
       Total[Pong] {
         case Pong(_, replyTo) => {
           if (n > 0) {
-            val contBeh = ctx.spawnAnonymous(Props(pingerBeh(msg, n-1)))
+            val contBeh = ctx.spawnAnonymous(pingerBeh(msg, n-1))
             replyTo ! Ping(msg, contBeh)
             Same
           } else {
@@ -215,7 +214,7 @@ object AkkaTypedImpl {
     ContextAware[Request] { ctx =>
       Total[Request] {
         case Ping(msg, replyTo) => {
-          val contBeh = ctx.spawnAnonymous(Props(pongerBeh(endTS)))
+          val contBeh = ctx.spawnAnonymous(pongerBeh(endTS))
           replyTo ! Pong(msg, contBeh)
           Same
         }
@@ -272,15 +271,12 @@ object AkkaTypedImpl {
                             pingerB: (String, Int) => Behavior[Pong],
                             pongerB: Promise[Long] => Behavior[Request])
                            (implicit as: akka.actor.ActorSystem)= {
-    import akka.typed.Ops
-    import scala.concurrent.Await
-    
     val endTS = Promise[Long]
     
-    val pingRef = Ops.ActorSystemOps(as).spawn(
-      Props(pingerB(msg, exchanges - 1))) // We will send the first Ping
-    val pongRef = Ops.ActorSystemOps(as).spawn(
-      Props(pongerB(endTS)))
+    val pingRef = ActorSystemOps(as).spawnAnonymous(
+      pingerB(msg, exchanges - 1)) // We will send the first Ping
+    val pongRef = ActorSystemOps(as).spawnAnonymous(
+      pongerB(endTS))
     
     val startTS = System.nanoTime()
     pongRef ! Ping(msg, pingRef)
@@ -305,7 +301,7 @@ object Benchmark {
     
     case class Bench(title: String, f: () => Long, results: MBuffer[Long])
     
-    implicit val as = akka.actor.ActorSystem("PingPingBenchmark",
+    implicit val as = akka.actor.ActorSystem("PingPongBenchmark",
                                         defaultExecutionContext = Some(global))
                                         
     // implicit val timeout = 5.seconds
@@ -364,7 +360,8 @@ object Benchmark {
     }
     println(" (Done)")
     
-    // Shut down the actor system
+    // Cleanup and hut down the actor system
+    ActorChannel.cleanup()
     as.terminate()
     
     for (b <- benchmarks) yield BenchmarkResult(b.title, b.results.iterator)

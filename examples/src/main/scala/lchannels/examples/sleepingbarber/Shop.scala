@@ -110,6 +110,6 @@ class Shop(nSeats: Int,
 
 object Shop {
   def apply(maxSeats: Int)(implicit d: Duration) = {
-    new Shop(maxSeats, LocalChannel.factory, LocalChannel.factory)
+    new Shop(maxSeats, () => LocalChannel.factory(), LocalChannel.factory)
   }
 }

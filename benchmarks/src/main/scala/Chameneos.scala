@@ -464,7 +464,8 @@ object Benchmark {
     
     val benchmarks = List(
       Bench("lchannels (Promise/Future)",
-            () => lBenchmark(LocalChannel.factory, LocalChannel.factory,
+            () => lBenchmark(() => LocalChannel.factory(),
+                             () => LocalChannel.factory(),
                              nChameneos, meetings),
             MBuffer()),
       Bench("Promise/Future",
@@ -507,7 +508,8 @@ object Benchmark {
     }
     println(" (Done)")
     
-    // Shut down the actor system
+    // Cleanup and hut down the actor system
+    ActorChannel.cleanup()
     as.terminate()
     
     for (b <- benchmarks) yield BenchmarkResult(b.title, b.results.iterator)
@@ -526,10 +528,10 @@ object Benchmark {
                         (implicit ec: ExecutionContext,
                                   d: Duration): Long = {
     import LChannelsImpl.{Broker, Chameneos}
-    val broker = new Broker(meetings, rfactory, cfactory)
+    val broker = new Broker(meetings, rfactory, cfactory)(ec)
     
     val chameneos = for (i <- 0 until nChameneos) yield {
-      new Chameneos(f"Chameneos ${i}", colorMap(i), broker)
+      new Chameneos(f"Chameneos ${i}", colorMap(i), broker)(ec)
     }
     
     val startTime = System.nanoTime()
@@ -545,10 +547,10 @@ object Benchmark {
                          (implicit ec: ExecutionContext,
                                    d: Duration): Long = {
     import PromiseFutureImpl.{Broker, Chameneos}
-    val broker = new Broker(meetings)
+    val broker = new Broker(meetings)(ec, d)
     
     val chameneos = for (i <- 0 until nChameneos) yield {
-      new Chameneos(f"Chameneos ${i}", colorMap(i), broker)
+      new Chameneos(f"Chameneos ${i}", colorMap(i), broker)(ec, d)
     }
     
     val startTime = System.nanoTime()
@@ -564,10 +566,10 @@ object Benchmark {
                          (implicit ec: ExecutionContext,
                                    d: Duration): Long = {
     import ScalaChannelsImpl.{Broker, Chameneos}
-    val broker = new Broker(meetings)
+    val broker = new Broker(meetings)(ec, d)
     
     val chameneos = for (i <- 0 until nChameneos) yield {
-      new Chameneos(f"Chameneos ${i}", colorMap(i), broker)
+      new Chameneos(f"Chameneos ${i}", colorMap(i), broker)(ec, d)
     }
     
     val startTime = System.nanoTime()
@@ -586,10 +588,10 @@ object Benchmark {
                            (implicit ec: ExecutionContext,
                                       d: Duration): Long = {
     import JavaBlockingQueuesImpl.{Broker, Chameneos}
-    val broker = new Broker(meetings, rfactory, gfactory, afactory)
+    val broker = new Broker(meetings, rfactory, gfactory, afactory)(ec, d)
     
     val chameneos = for (i <- 0 until nChameneos) yield {
-      new Chameneos(f"Chameneos ${i}", colorMap(i), broker)
+      new Chameneos(f"Chameneos ${i}", colorMap(i), broker)(ec, d)
     }
     
     val startTime = System.nanoTime()

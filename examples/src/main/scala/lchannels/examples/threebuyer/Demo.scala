@@ -39,9 +39,9 @@ object Local extends App {
   // Helper method to ease external invocation
   def run() = main(Array())
   
-  Demo.start(LocalChannel.factory[PlayAlice],
-             LocalChannel.factory[PlayBob],
-             LocalChannel.factory[Contrib])
+  Demo.start(() => LocalChannel.factory[PlayAlice](),
+             () => LocalChannel.factory[PlayBob](),
+             () => LocalChannel.factory[Contrib]())
 }
 
 object Demo {
@@ -68,12 +68,12 @@ object Demo {
       bcp.success(bci) // Complete the Promise with one channel endpoint...
       bco // ...and return the other endpoint
     }
-    def bobConnector() = Await.result(bcf, duration.Duration.Inf)
+    def bobConnector = Await.result(bcf, duration.Duration.Inf)
     
     val seller = new Seller(sa, sb)
     val alice = new Alice(ca)
     val bob = new Bob(cb, carolConnector)
-    val carol = new Carol(bobConnector)
+    val carol = new Carol(() => bobConnector)
     
     // Wait for Alice, Bob, Seller to quit (NOTE: Carol might not be involved)
     alice.join()

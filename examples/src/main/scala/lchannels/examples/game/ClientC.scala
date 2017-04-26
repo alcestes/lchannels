@@ -108,5 +108,7 @@ object Actor extends App {
   val client = new Client("Carol", c2, 1.seconds)(30.seconds)
   
   client.join()
+  // Cleanup and hut down the actor system
+  ActorChannel.cleanup()
   as.terminate()
 }

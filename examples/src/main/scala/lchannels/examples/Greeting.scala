@@ -71,7 +71,7 @@ object Server {
   }
   def serve()(implicit ctx: ExecutionContext,
                        timeout: Duration): Out[Start] = {
-    serve(LocalChannel.factory)
+    serve(() => LocalChannel.factory())
   }
 }
 
@@ -284,5 +284,7 @@ object ActorClient extends App {
   Client1(c)
 
   Thread.sleep(2000) // Just to deliver pending actor messages
+  // Cleanup and hut down the actor system
+  ActorChannel.cleanup()
   as.terminate()
 }

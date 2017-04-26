@@ -84,7 +84,7 @@ protected class FifoImpl[T](factory: () => (In[Datum[T]], Out[Datum[T]]))
 object Fifo {
   /** Return an empty FIFO, internally based on [[LocalChannel]]s. */
   def apply[T](): Fifo[T] = {
-    new FifoImpl[T](LocalChannel.factory[Datum[T]])
+    new FifoImpl[T](() => LocalChannel.factory[Datum[T]]())
   }
   
   /** Return an empty FIFO, internally based on [[QueueChannel]]s

@@ -27,11 +27,11 @@
 package lchannels
 
 import scala.annotation.meta.field
-import scala.concurrent.{Await, blocking, ExecutionContext, Future}
+import scala.concurrent.{blocking, ExecutionContext, Future}
 import scala.concurrent.duration.{Duration, FiniteDuration}
 import scala.util.{Try, Success}
 
-import java.util.concurrent.{TimeoutException, TimeUnit}
+import java.util.concurrent.TimeoutException
 
 import akka.actor.{ActorPath, ActorRef, ActorSystem}
 
@@ -43,16 +43,26 @@ case class Actor()
  */
 private sealed abstract class ValueOrDest[T]
 private case class Value[T](v: Try[T]) extends ValueOrDest[T]
-private case class Dispatch[T]() extends ValueOrDest[T]
+private case class Dispatch[T](dest: ActorRef) extends ValueOrDest[T]
 
 protected[lchannels] object Defaults {
   import java.util.concurrent.atomic.AtomicReference
-  import java.util.concurrent.LinkedTransferQueue
+  import java.util.concurrent.{LinkedTransferQueue => LTQueue}
   import akka.actor.{ActorSystem, Props}
   
   private val exCtx = new AtomicReference[ExecutionContext]()
   private val actorSys = new AtomicReference[ActorSystem]()
-  private val dispatchers = new LinkedTransferQueue[ActorRef]()
+
+  // Dispatcher actors will receive messages and forward them to retrievers
+  private val dispatchers = new LTQueue[ActorRef]()
+  
+  // Retriever actors will receive messages and write them in companion queue
+  private val retrievers = new LTQueue[(ActorRef, LTQueue[Try[Any]])]()
+  
+  // This set tracks all actors that have been created thus far.
+  // It will be used to kill active actors: see ActorChannels.cleanup()
+  private val actors = scala.collection.mutable.Set[ActorRef]()
+
   
   def setExCtx(ec: ExecutionContext): Unit = exCtx.set(ec)
   
@@ -105,6 +115,7 @@ protected[lchannels] object Defaults {
         case Some(ref) => {
           ref ! v
           if (!stayAlive) {
+            actors.remove(self)
             self ! akka.actor.PoisonPill
           } else {
             // We can be reused
@@ -114,10 +125,11 @@ protected[lchannels] object Defaults {
         }
         case None => recvdValue = Some(v) // We should reiceve dest later
       }
-      case Dispatch() => recvdValue match {
+      case Dispatch(dest) => recvdValue match {
         case Some(v) => {
-          sender ! v
+          dest ! v
           if (!stayAlive) {
+            actors.remove(self)
             self ! akka.actor.PoisonPill
           } else {
              // We can be reused
@@ -125,7 +137,17 @@ protected[lchannels] object Defaults {
             dispatchers.put(self)
           }
         }
-        case None => recvdDest = Some(sender) // We should receive the value later
+        case None => recvdDest = Some(dest) // We should receive the value later
+      }
+    }
+  }
+  
+  class Retriever(queue: LTQueue[Try[Any]]) extends akka.actor.Actor {
+    override def receive = {
+      case v: Try[Any] => {
+        queue.put(v)
+        // We can be reused
+        retrievers.put((self, queue))
       }
     }
   }
@@ -136,18 +158,30 @@ protected[lchannels] object Defaults {
       // No dispatcher is available: let's create a new one
       // TODO: allow to limit queue size and/or the number of live dispatchers
       // Note that if the dispatcher is given a name, it will NOT stay alive
-      name match {
+      val ref = name match {
         case None => as.actorOf(Props(new Dispatcher(true)))
         case Some(name) => as.actorOf(Props(new Dispatcher(false)), name)
       }
+      actors.add(ref) // Keep track of the actor
+      ref
     }
   }
   
-  def killDispatchers() = {
-    // FIXME: we also need to avoid rescheduling running dispatchers!
-    while (!dispatchers.isEmpty()) {
-      dispatchers.take() ! akka.actor.PoisonPill
+  def getRetriever(as: ActorSystem): (ActorRef, LTQueue[Try[Any]]) = retrievers.poll match {
+    case (ref: ActorRef, q: LTQueue[Try[Any]]) => (ref, q) // We can reuse a retriever
+    case null => {
+      // No retriever is available: let's create a new one
+      // TODO: allow to limit queue size and/or the number of live dispatchers
+      val q = new LTQueue[Try[Any]]()
+      val ref = as.actorOf(Props(new Retriever(q)))
+      actors.add(ref) // Keep track of the actor
+      (ref, q)
     }
+  }
+  
+  def killActors() = {
+    // TODO: should we forbid spawning new actors?  Or just leave it to user?
+    actors.foreach { ref => ref ! akka.actor.PoisonPill }
   }
 }
 
@@ -196,7 +230,7 @@ object ActorChannel {
   def cleanup() = {
     setDefaultEC(null)
     setDefaultAS(null)
-    Defaults.killDispatchers()
+    Defaults.killActors()
   }
   
   /** Create a pair of actor-based I/O channel endpoints.
@@ -290,29 +324,23 @@ protected[lchannels] class ActorIn[T](dref: ActorRef  )
   def path: ActorPath = dref.path
   
   override def receive(implicit atMost: Duration) = {
-    import akka.pattern.ask
-    
     _markAsUsed()
     // FIXME: the following can/should be optimised
     
-    implicit val timeout = if (atMost.isFinite) {
-      akka.util.Timeout(atMost.length, atMost.unit)
-    } else {
-      // FIXME: the following timeout is not infinite, but is the maximum
-      // (at least on Scala 2.12.2 and Akka 2.5.0)
-      akka.util.Timeout(21474834, TimeUnit.SECONDS)
-    }
-    val fv = dref ? Dispatch()
+    val das = Defaults.getActorSys(as)
+    val (retr, q) = Defaults.getRetriever(das)
     
-    try {
-      // recvd value has type Try[T]
-      val v = Await.result(fv, atMost).asInstanceOf[Try[T]]
-      v.get
-    } catch {
-      case e: TimeoutException => {
-        throw new TimeoutException(f"Input timed out after ${atMost} (inner exception: ${e.getMessage})")
+    val fv = dref ! Dispatch(retr)
+
+    if (atMost.isFinite) {
+      val v = q.poll(atMost.length, atMost.unit)
+      if (v == null) {
+        throw new TimeoutException(f"Input timed out after ${atMost}")
       }
-    }
+      v.get.asInstanceOf[T] // recvd value has type Try[T]
+    } else {
+      q.take().get.asInstanceOf[T] // recvd value has type Try[T]
+    } 
   }
 
   override def toString() = {
@@ -326,6 +354,7 @@ object ActorIn {
                                  (implicit ec: ExecutionContext, as: ActorSystem): ActorIn[T] = {
     new ActorIn(dref)(ec, as)
   }
+  
   /** Proxy an [[ActorIn]] instance reachable through the given Akka actor path
    *  
    *  @param path Actor path, matching the value of some [[ActorIn.path]]

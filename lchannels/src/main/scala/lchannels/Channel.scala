@@ -243,7 +243,7 @@ abstract class Out[-T] extends Channel[Send] {
 
 /** Linear channel endpoint without input/output capabilities.
  * 
- * For most practical purposes, instances of this object can be often replaced
- * with instances of `Unit`.
+ * For most practical purposes, occurrences of this object can be often
+ * replaced with `()`.
  * */
-case class End() extends Channel[None]
+case object End extends Channel[None]

@@ -7,9 +7,9 @@ Keys.`package` := {
 
 lazy val commonSettings = Seq(
   version := "0.0.3",
-  scalaVersion := "2.12.2",
+  scalaVersion := "2.12.7",
   scalacOptions ++= Seq(
-    "-target:jvm-1.8", "-unchecked", "-deprecation", "-feature", "-Ywarn-unused-import"
+    "-target:jvm-1.8", "-unchecked", "-feature", "-Ywarn-unused-import" // "-deprecation"
   ),
   // ScalaDoc setup
   autoAPIMappings := true,
